@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scene version="0.5.0">
+	<include filename="materials.xml"/>
+	<shape type="shapegroup" id="sphere">
+		<shape type="sphere">
+			<ref id="light_grey"/>
+		</shape>
+	</shape>
+	<shape type="shapegroup" id="cube">
+		<shape type="cube">
+			<ref id="light_grey"/>
+		</shape>
+	</shape>
+
+	<shape type="shapegroup" id="background">
+		<shape type="rectangle">
+			<transform name="toWorld">
+				<rotate y="1" angle="90"/>
+				<scale x="30" y="30" z="30"/>
+				<translate x="-2"/>
+			</transform>
+			<ref id="white"/>
+		</shape>
+		<shape type="rectangle">
+			<transform name="toWorld">
+				<rotate x="1" angle="-90"/>
+				<scale x="30" y="1" z="30"/>
+				<translate y="-.5"/>
+			</transform>
+			<ref id="shiny_grid_texture"/>
+		</shape>
+	</shape>
+
+</scene>
