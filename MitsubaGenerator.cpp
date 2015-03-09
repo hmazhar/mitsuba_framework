@@ -1,7 +1,6 @@
 #include "MitsubaGenerator.h"
 
 using namespace chrono;
-using namespace chrono::utils;
 using namespace std;
 using namespace rapidxml;
 
@@ -23,8 +22,8 @@ void MitsubaGenerator::AddAttributes(const std::vector<xml_option>& options, xml
   }
 }
 xml_node<>* MitsubaGenerator::CreatePlugin(const std::string& name,
-                                          const std::string& type,
-                                          const std::vector<xml_option>& options) {
+                                           const std::string& type,
+                                           const std::vector<xml_option>& options) {
   xml_node<>* plugin_root = CreateNewNode(name.c_str());  // Create the root integrator node <integrator ...
   AddAttribute("type", type.c_str(), plugin_root);        // Set the type of integrator <integrator type="path">
   AddAttributes(options, plugin_root);                    // Set the other integrator options
@@ -38,8 +37,8 @@ rapidxml::xml_node<>* MitsubaGenerator::CreateTransform(const std::string& name)
 }
 
 rapidxml::xml_node<>* MitsubaGenerator::CreateTransform(const ChVector<>& scale,
-                                                       const ChVector<>& position,
-                                                       const ChQuaternion<>& rotation) {
+                                                        const ChVector<>& position,
+                                                        const ChQuaternion<>& rotation) {
   xml_node<>* transform_root = CreateTransform("toWorld");
 
   Scale(scale, transform_root);
@@ -84,9 +83,9 @@ void MitsubaGenerator::Rotate(const double angle, const ChVector<>& axis, rapidx
 }
 
 void MitsubaGenerator::LookAt(const ChVector<>& origin,
-                             const ChVector<>& look_at,
-                             const ChVector<>& up,
-                             rapidxml::xml_node<>* root) {
+                              const ChVector<>& look_at,
+                              const ChVector<>& up,
+                              rapidxml::xml_node<>* root) {
   xml_node<>* node = CreateNewNode("lookAt");
 
   AddAttribute("origin", CreateTriplet(origin).c_str(), node);
@@ -97,9 +96,9 @@ void MitsubaGenerator::LookAt(const ChVector<>& origin,
 }
 
 rapidxml::xml_node<>* MitsubaGenerator::CreateSky(const std::string& scale,
-                                                 const std::string& hour,
-                                                 const std::string& turbidity,
-                                                 const std::string& albedo) {
+                                                  const std::string& hour,
+                                                  const std::string& turbidity,
+                                                  const std::string& albedo) {
   std::vector<xml_option> sky_options;
   sky_options.push_back(xml_option("float", "scale", scale));
   sky_options.push_back(xml_option("float", "hour", hour));
@@ -183,9 +182,9 @@ MitsubaGenerator::MitsubaGenerator() {
 }
 
 void MitsubaGenerator::AddShape(const std::string& id,
-                               const ChVector<>& scale,
-                               const ChVector<>& position,
-                               const ChQuaternion<>& rotation) {
+                                const ChVector<>& scale,
+                                const ChVector<>& position,
+                                const ChQuaternion<>& rotation) {
   xml_node<>* shape_node = CreateNewNode("shape");  // Create the root integrator node <integrator ...
   AddAttribute("type", "instance", shape_node);     // Set the type of integrator <integrator type="path">
   xml_node<>* reference = CreateNewNode("ref");

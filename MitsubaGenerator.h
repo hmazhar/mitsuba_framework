@@ -6,10 +6,9 @@
 #include <vector>
 #include <utility>
 #include <sstream>
-#include "core/ChMath.h"
+#include <core/ChMath.h>
 #include "xml/rapidxml.hpp"
 #include "xml/rapidxml_print.hpp"
-
 
 struct xml_option {
   xml_option(std::string type_, std::string parameter_, std::string value_)
@@ -33,19 +32,22 @@ class MitsubaGenerator {
                                      const std::string& type,
                                      const std::vector<xml_option>& options);
   rapidxml::xml_node<>* CreateTransform(const std::string& name);
-  rapidxml::xml_node<>* CreateTransform(const ChVector<>& scale,
-                                        const ChVector<>& position,
-                                        const ChQuaternion<>& rotation);
+  rapidxml::xml_node<>* CreateTransform(const chrono::ChVector<>& scale,
+                                        const chrono::ChVector<>& position,
+                                        const chrono::ChQuaternion<>& rotation);
   rapidxml::xml_node<>* CreateSky(const std::string& scale,
                                   const std::string& hour,
                                   const std::string& turbidity,
                                   const std::string& albedo);
-  std::string CreateTriplet(const ChVector<>& v);
-  void CreateXYZTriplet(const ChVector<>& v, rapidxml::xml_node<>* node);
-  void Translate(const ChVector<>& vector, rapidxml::xml_node<>* root);
-  void Scale(const ChVector<>& vector, rapidxml::xml_node<>* root);
-  void Rotate(const double angle, const ChVector<>& axis, rapidxml::xml_node<>* root);
-  void LookAt(const ChVector<>& origin, const ChVector<>& look_at, const ChVector<>& up, rapidxml::xml_node<>* root);
+  std::string CreateTriplet(const chrono::ChVector<>& v);
+  void CreateXYZTriplet(const chrono::ChVector<>& v, rapidxml::xml_node<>* node);
+  void Translate(const chrono::ChVector<>& vector, rapidxml::xml_node<>* root);
+  void Scale(const chrono::ChVector<>& vector, rapidxml::xml_node<>* root);
+  void Rotate(const double angle, const chrono::ChVector<>& axis, rapidxml::xml_node<>* root);
+  void LookAt(const chrono::ChVector<>& origin,
+              const chrono::ChVector<>& look_at,
+              const chrono::ChVector<>& up,
+              rapidxml::xml_node<>* root);
 
   void CreateScene(bool add_integrator = true, bool add_sensor = true, bool add_sky = true);
   void Write(const std::string& filename);
@@ -53,16 +55,16 @@ class MitsubaGenerator {
   void SetRenderFolder(const std::string& folder) { render_folder = folder; }
 
   void AddShape(const std::string& id,
-                const ChVector<>& scale,
-                const ChVector<>& position,
-                const ChQuaternion<>& rotation);
+                const chrono::ChVector<>& scale,
+                const chrono::ChVector<>& position,
+                const chrono::ChQuaternion<>& rotation);
 
-  void AddSensor(ChVector<> origin, ChVector<> target, ChVector<> up);
+  void AddSensor(chrono::ChVector<> origin, chrono::ChVector<> target, chrono::ChVector<> up);
 
   //=========================================================================================================
   //=========================================================================================================
   // Sensor Settings
-  ChVector<> camera_target, camera_origin, camera_up;
+  chrono::ChVector<> camera_target, camera_origin, camera_up;
   float scale, hour, turbidity, albedo;
 
   //=========================================================================================================
