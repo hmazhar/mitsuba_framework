@@ -4,7 +4,7 @@
 #=============================================================================
 
 cmake_minimum_required(VERSION 2.8)
-project(MitsubaGenerator)
+project(Mitsuba_Generator)
 
 # Policy CMP0046 warning when a dependency does not exist
 # According to a dev from kitware The add_dependencies
