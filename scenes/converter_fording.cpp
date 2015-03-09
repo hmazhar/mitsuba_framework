@@ -11,15 +11,8 @@ int main(int argc, char* argv[]) {
   }
   stringstream input_file_ss;
   input_file_ss << "data_" << argv[1] << ".dat";
-
-  gzFile gz_file = gzopen(input_file_ss.str().c_str(), "rb");
-  unsigned long int size;
-  gzread(gz_file, (void*)&size, sizeof(size));
-  std::string data;
-  data.resize(size / sizeof(char));
-
-  gzread(gz_file, (void*)data.data(), size);
-  gzclose(gz_file);
+  string data;
+  ReadCompressed(input_file_ss.str(), data);
 
   MitsubaGenerator scene_document;
   scene_document.CreateScene(true, false);
@@ -27,18 +20,15 @@ int main(int argc, char* argv[]) {
   MitsubaGenerator data_document;
   stringstream data_stream(data);
 
-
-
-
   ChVector<> pos, vel, scale;
   ChQuaternion<> rot;
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   data_document.AddShape("box", scale, pos, rot);
   SkipLine(data_stream, 3);
-//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-//  data_document.AddShape("box", scale, pos, rot);
-//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-//  data_document.AddShape("box", scale, pos, rot);
+  //  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  //  data_document.AddShape("box", scale, pos, rot);
+  //  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  //  data_document.AddShape("box", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   data_document.AddShape("box", scale, pos, rot);
   SkipLine(data_stream, 1);
@@ -49,8 +39,6 @@ int main(int argc, char* argv[]) {
   data_document.AddShape("box", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   data_document.AddShape("box", scale, pos, rot);
-
-
 
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
 
@@ -59,7 +47,7 @@ int main(int argc, char* argv[]) {
   data_document.AddShape("chassis", Vector(1, 1, 1), pos + offset, rot);
   Vector camera_pos = pos + offset;
   camera_pos.y = 10;
-  data_document.AddSensor(camera_pos, pos + offset, Vector(0,0,1));
+  data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1));
 
   SkipLine(data_stream, 256);
   SkipLine(data_stream, 4);

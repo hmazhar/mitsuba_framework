@@ -4,7 +4,17 @@
 #include <cstring>
 #include <zlib.h>
 #include <core/ChMath.h>
-#include "collision/ChCModelBullet.h"
+#include <collision/ChCModelBullet.h>
+
+void ReadCompressed(std::string filename, std::string& data) {
+  gzFile gz_file = gzopen(filename.c_str(), "rb");
+  unsigned long int size;
+  gzread(gz_file, (void*)&size, sizeof(size));
+  data.resize(size / sizeof(char));
+
+  gzread(gz_file, (void*)data.data(), size);
+  gzclose(gz_file);
+}
 
 void SkipLine(std::stringstream& ifile, int number = 1) {
   std::string temp;
@@ -13,7 +23,11 @@ void SkipLine(std::stringstream& ifile, int number = 1) {
   }
 }
 
-int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono::ChVector<>& vel, chrono::ChVector<>& rad, chrono::ChQuaternion<>& quat) {
+int ProcessPovrayLine(std::stringstream& ifile,
+                      chrono::ChVector<>& pos,
+                      chrono::ChVector<>& vel,
+                      chrono::ChVector<>& rad,
+                      chrono::ChQuaternion<>& quat) {
   std::string temp;
   std::getline(ifile, temp);
   std::replace(temp.begin(), temp.end(), ',', '\t');
