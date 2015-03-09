@@ -122,30 +122,7 @@ void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor, bool ad
     root_node->append_node(integrator);
   }
   if (add_sensor) {
-    /////Sensor
-    std::vector<xml_option> sensor_options;
-    sensor_options.push_back(xml_option("string", "fovAxis", "smaller"));
-    sensor_options.push_back(xml_option("float", "fov", "45"));
-    xml_node<>* sensor = CreatePlugin("sensor", "perspective", sensor_options);
-    xml_node<>* sensor_transform = CreateTransform("toWorld");
-    LookAt(camera_origin, camera_target, camera_up, sensor_transform);
-    sensor->append_node(sensor_transform);
-
-    /////Sampler
-    std::vector<xml_option> sampler_options;
-    sampler_options.push_back(xml_option("integer", "sampleCount", "256"));
-    sampler_options.push_back(xml_option("integer", "scramble", "-1"));
-    xml_node<>* sampler = CreatePlugin("sampler", "sobol", sampler_options);
-    sensor->append_node(sampler);
-
-    /////Film
-    std::vector<xml_option> film_options;
-    film_options.push_back(xml_option("integer", "width", to_string(width)));
-    film_options.push_back(xml_option("integer", "height", to_string(height)));
-    film_options.push_back(xml_option("boolean", "banner", "false"));
-    xml_node<>* film = CreatePlugin("film", "ldrfilm", film_options);
-    sensor->append_node(film);
-    root_node->append_node(sensor);
+    AddSensor(camera_origin, camera_target, camera_up);
   }
   if (add_sky) {
     // Add the Sky emitter
