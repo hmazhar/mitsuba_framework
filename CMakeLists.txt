@@ -6,6 +6,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(Mitsuba_Generator)
 
+# Location of additional CMAKE modules
+SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 # Policy CMP0046 warning when a dependency does not exist
 # According to a dev from kitware The add_dependencies
 # command is for inter-target ordering dependencies, not
@@ -28,13 +31,27 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 # ------------------------------------------------------------------------------
-# LIST THE FILES in the MitsubaGenerator LIBRARY
+# Locate Dependencies
 # ------------------------------------------------------------------------------
 
 find_package(ZLIB)
 
 SET(PARTIO_NAMES ${PARTIO_NAMES} partio)  
 FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
+
+FIND_PACKAGE(ChronoEngine)
+
+# Add paths to Chrono headers
+INCLUDE_DIRECTORIES(${CHRONOENGINE_INCLUDES})
+
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
+ENDIF()
+
+# ------------------------------------------------------------------------------
+# LIST THE FILES in the MitsubaGenerator LIBRARY
+# ------------------------------------------------------------------------------
+
 
 SET(MitsubaGenerator_SOURCES
     MitsubaGenerator.cpp

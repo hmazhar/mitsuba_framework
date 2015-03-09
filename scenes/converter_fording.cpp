@@ -1,11 +1,8 @@
 #include "converter_general.h"
-#include "chrono_utils/ChUtilsMitsuba.h"
-#include "collision/ChCCollisionSystemBullet.h"
+#include "MitsubaGenerator.h"
 
 using namespace std;
 using namespace chrono;
-using namespace chrono::utils;
-using namespace chrono::collision;
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
@@ -24,10 +21,10 @@ int main(int argc, char* argv[]) {
   gzread(gz_file, (void*)data.data(), size);
   gzclose(gz_file);
 
-  ChMitsubaRender scene_document;
+  MitsubaGenerator scene_document;
   scene_document.CreateScene(true, false);
   scene_document.Write("scene.xml");
-  ChMitsubaRender data_document;
+  MitsubaGenerator data_document;
   stringstream data_stream(data);
 
 
