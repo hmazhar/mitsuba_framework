@@ -1,36 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <scene version="0.5.0">
+	<!-- Generic Colors -->
 	<bsdf type="diffuse" id="white">
 		<srgb name="reflectance" value="#ffffff"/>
+	</bsdf >
+	<bsdf type="diffuse" id="red_mat">
+		<srgb name="reflectance" value="#ff0000"/>
+	</bsdf >
+	<bsdf type="diffuse" id="green_mat">
+		<srgb name="reflectance" value="#00ff00"/>
+	</bsdf >
+	<bsdf type="diffuse" id="blue_mat">
+		<srgb name="reflectance" value="#0000ff"/>
 	</bsdf >
 	<bsdf type="diffuse" id="light_grey">
 		<srgb name="reflectance" value="#b0b0b0"/>
 	</bsdf >
-
-	<bsdf type="diffuse" id="red_mat">
-		<srgb name="reflectance" value="#ff0000"/>
-	</bsdf >
-
-	<bsdf type="diffuse" id="green_mat">
-		<srgb name="reflectance" value="#00ff00"/>
-	</bsdf >
-
-	<bsdf type="diffuse" id="blue_mat">
-		<srgb name="reflectance" value="#0000ff"/>
-	</bsdf >
-
+	<!-- Specific Colors -->
 	<bsdf type="diffuse" id="curious_blue">
 		<srgb name="reflectance" value="#19B5FE"/>
 	</bsdf >
-
 	<bsdf type="plastic" id="white_plastic">
 		<srgb name="diffuseReflectance" value="#ffffff"/> 
 		<float name="intIOR" value="1.9"/>
 	</bsdf>
+	<bsdf type="diffuse" id="badger_red">
+		<srgb name="reflectance" value="#b51f24"/>
+	</bsdf >
 	<bsdf type="plastic" id="badger_plastic">
 		<srgb name="diffuseReflectance" value="#b70101"/> 
 		<float name="intIOR" value="1.9"/>
 	</bsdf>
+	<bsdf type="diffuse" id="dark_blue">
+		<srgb name="reflectance" value="#6A4A3C"/>
+	</bsdf >
 
 	<bsdf type="roughconductor" id="rough_metal">
 		<string name="material" value="Al"/> 
@@ -52,7 +55,6 @@
 		<float name="intIOR" value="1.61"/>
 		<float name="scale" value="0.6"/> 
 	</bsdf>
-
 
 	<bsdf type="diffuse" id="grid_texture">
 		<texture type="gridtexture" name="reflectance">
