@@ -4,12 +4,16 @@
 	<integrator type="path">
 		<integer name="maxDepth" value="10"/>
 		<integer name="rrDepth" value="10"/>
+		<boolean name="hideEmitters" value="true"/>
 	</integrator>
 	<sensor type="perspective">
 		<string name="fovAxis" value="smaller"/>
 		<float name="fov" value="45"/>
 		<transform name="toWorld">
-			<lookAt origin="3, 0, 0" target="2, 0, 0" up="0, 1, 0"/>
+			<lookAt origin="2.5, 0, 0" target="1, 0, 0" up="0, 1, 0"/>
+			<!-- <lookAt origin="0, 2.5, 0" target="0, 0, 0" up="1, 0, 0"/> -->
+			<!-- <lookAt origin=".625, 0.01, .85" target=".1, -.25, .05" up="0, 1, 0"/> -->
+						<!-- <lookAt origin="-.454, .134, 1.63" target="-.11, -.176, .74" up="0, 1, 0"/> -->
 		</transform>
 		<sampler type="sobol">
 			<integer name="sampleCount" value="256"/>
@@ -27,7 +31,7 @@
 		<float name="turbidity" value="10.000000"/>
 		<spectrum name="albedo" value="0.150000"/>
 	</emitter>
-	<include filename="$frame.xml"/>
+	<include filename="260.xml"/>
 	<shape type="instance">
 		<ref id="background"/>
 		<transform name="toWorld">

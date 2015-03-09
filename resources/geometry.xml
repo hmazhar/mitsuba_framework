@@ -3,12 +3,24 @@
 	<include filename="materials.xml"/>
 	<shape type="shapegroup" id="sphere">
 		<shape type="sphere">
-			<ref id="light_grey"/>
+			<ref id="curious_blue"/>
 		</shape>
 	</shape>
 	<shape type="shapegroup" id="cube">
 		<shape type="cube">
-			<ref id="light_grey"/>
+			<ref id="rough_plastic"/>
+		</shape>
+	</shape>
+	<shape type="shapegroup" id="bucky">
+		<shape type="obj">
+			<string name="filename" value="bucky_2.obj"/>
+			<ref id="rough_plastic"/>
+		</shape>
+	</shape>
+	<shape type="shapegroup" id="fluid">
+		<shape type="obj">
+			<string name="filename" value="fluid.obj"/>
+			<ref id="rough_blue_plastic"/>
 		</shape>
 	</shape>
 
@@ -17,7 +29,7 @@
 			<transform name="toWorld">
 				<rotate y="1" angle="90"/>
 				<scale x="30" y="30" z="30"/>
-				<translate x="-2"/>
+				<translate x="-1"/>
 			</transform>
 			<ref id="white"/>
 		</shape>
