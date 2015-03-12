@@ -192,6 +192,7 @@ void MitsubaGenerator::AddSensor(ChVector<> origin, ChVector<> target, ChVector<
 
   /////Film
   std::vector<xml_option> film_options;
+  film_options.push_back(xml_option("string", "pixelFormat", "rgba"));
   film_options.push_back(xml_option("integer", "width", to_string(width)));
   film_options.push_back(xml_option("integer", "height", to_string(height)));
   film_options.push_back(xml_option("boolean", "banner", "false"));
