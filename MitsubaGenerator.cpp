@@ -116,6 +116,7 @@ void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor, bool ad
   if (add_integrator) {
     /////Integrator
     std::vector<xml_option> integrator_options;
+    integrator_options.push_back(xml_option("boolean", "hideEmitters", "true"));
     integrator_options.push_back(xml_option("integer", "maxDepth", "10"));
     integrator_options.push_back(xml_option("integer", "rrDepth", "10"));
     xml_node<>* integrator = CreatePlugin("integrator", "path", integrator_options);
