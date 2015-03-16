@@ -42,9 +42,9 @@ int main(int argc, char* argv[]) {
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("cube", scale, pos, rot);
+  data_document.AddShape("flat", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("cube", scale, pos, rot);
+  data_document.AddShape("flat", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
