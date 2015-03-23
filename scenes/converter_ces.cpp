@@ -49,6 +49,8 @@ int main(int argc, char* argv[]) {
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
   SkipLine(data_stream, 18);
+  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  data_document.AddShape("flat", scale, pos, rot);
 
   while (data_stream.fail() == false) {
     int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
