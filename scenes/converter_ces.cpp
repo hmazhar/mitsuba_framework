@@ -41,14 +41,14 @@ int main(int argc, char* argv[]) {
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
-  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("flat", scale, pos, rot);
-  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("flat", scale, pos, rot);
+//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+//  data_document.AddShape("flat", scale, pos, rot);
+//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+//  data_document.AddShape("flat", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
-  SkipLine(data_stream, 18);
+  SkipLine(data_stream, 6); //18
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   data_document.AddShape("flat", scale, pos, rot);
 
