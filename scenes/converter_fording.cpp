@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
   while (data_stream.fail() == false) {
     ProcessPovrayLine(data_stream, pos, vel, scale, rot);
     if (data_stream.fail() == false) {
-      data_document.AddShape("sphere", ChVector<>(0.03), pos, rot);
+      data_document.AddShape("sphere", ChVector<>(0.0175), pos, rot);
     }
   }
   stringstream output_file_ss;
