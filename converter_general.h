@@ -41,6 +41,7 @@ int ProcessPovrayLine(std::stringstream& ifile,
   switch (type) {
     case chrono::collision::SPHERE:
       ss >> rad.x;
+      rad.y = rad.z = rad.x;
       break;
     case chrono::collision::ELLIPSOID:
       ss >> rad.x >> rad.y >> rad.z;
@@ -50,9 +51,11 @@ int ProcessPovrayLine(std::stringstream& ifile,
       break;
     case chrono::collision::CYLINDER:
       ss >> rad.x >> rad.y;
+      rad.z = rad.x;
       break;
     case chrono::collision::CONE:
       ss >> rad.x >> rad.y;
+      rad.z = rad.x;
       break;
     default:
       // type is -1 (triangle mesh)
