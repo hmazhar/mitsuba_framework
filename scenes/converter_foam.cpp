@@ -40,28 +40,27 @@ int main(int argc, char* argv[]) {
 
   while (data_stream.fail() == false) {
     int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-    if (data_stream.fail() == true) {
-      break;
-    }
-    switch (type) {
-      case chrono::collision::SPHERE:
-        data_document.AddShape("sphere", scale, pos, rot);
-        break;
-      case chrono::collision::ELLIPSOID:
-        data_document.AddShape("ellipsoid", scale, pos, rot);
-        break;
-      case chrono::collision::BOX:
-        data_document.AddShape("box", scale, pos, rot);
-        break;
-      case chrono::collision::CYLINDER:
-        data_document.AddShape("cylinder", scale, pos, rot);
-        break;
-      case chrono::collision::CONE:
-        data_document.AddShape("cone", scale, pos, rot);
-        break;
-      default:
-        // type is -1 (triangle mesh)
-        break;
+    if (data_stream.fail() == false) {
+      switch (type) {
+        case chrono::collision::SPHERE:
+          data_document.AddShape("sphere", scale, pos, rot);
+          break;
+        case chrono::collision::ELLIPSOID:
+          data_document.AddShape("ellipsoid", scale, pos, rot);
+          break;
+        case chrono::collision::BOX:
+          data_document.AddShape("box", scale, pos, rot);
+          break;
+        case chrono::collision::CYLINDER:
+          data_document.AddShape("cylinder", scale, pos, rot);
+          break;
+        case chrono::collision::CONE:
+          data_document.AddShape("cone", scale, pos, rot);
+          break;
+        default:
+          // type is -1 (triangle mesh)
+          break;
+      }
     }
   }
 
