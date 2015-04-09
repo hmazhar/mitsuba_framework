@@ -108,7 +108,12 @@ int main(int argc, char* argv[]) {
     }
   }
   stringstream output_file_ss;
-  output_file_ss << argv[1] << ".xml";
+
+  if (argc == 3) {
+    output_file_ss << argv[2] << argv[1] << ".xml";
+  } else {
+    output_file_ss << argv[1] << ".xml";
+  }
   data_document.Write(output_file_ss.str());
   return 0;
 }
