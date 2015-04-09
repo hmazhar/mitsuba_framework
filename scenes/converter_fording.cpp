@@ -1,11 +1,11 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
-#include "Partio.h"
+//#include "Partio.h"
 using namespace std;
 using namespace chrono;
 
 int main(int argc, char* argv[]) {
-  if (argc != 2) {
+  if (argc == 1) {
     cout << "REQURES FRAME NUMBER AS ARGUMENT" << endl;
     return 1;
   }
