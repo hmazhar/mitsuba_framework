@@ -1,6 +1,7 @@
 #include "MitsubaGenerator.h"
-
+#include <collision/ChCModelBullet.h>
 using namespace chrono;
+using namespace chrono::collision;
 using namespace std;
 using namespace rapidxml;
 
@@ -172,6 +173,37 @@ void MitsubaGenerator::AddShape(const std::string& id,
   shape_node->append_node(transform);
 
   root_node->append_node(shape_node);
+}
+
+void MitsubaGenerator::AddSimpleShape(const int type,
+                                      const chrono::ChVector<>& scale,
+                                      const chrono::ChVector<>& position,
+                                      const chrono::ChQuaternion<>& rotation) {
+  switch (type) {
+    case chrono::collision::SPHERE:
+      AddShape("sphere", scale, position, rotation);
+      break;
+    case chrono::collision::ELLIPSOID:
+      AddShape("sphere", scale, position, rotation);
+      break;
+    case chrono::collision::BOX:
+      AddShape("box", scale, position, rotation);
+      break;
+    case chrono::collision::CYLINDER:
+      AddShape("cylinder", scale, position, rotation);
+      break;
+    case chrono::collision::CONE:
+      AddShape("cone", scale, position, rotation);
+      break;
+    case chrono::collision::CAPSULE:
+      AddShape("sphere", ChVector<>(scale.x), position + rotation.Rotate(ChVector<>(0, scale.y, 0)), QUNIT);
+      AddShape("cylinder", scale, position, rotation);
+      AddShape("sphere", ChVector<>(scale.x), position + rotation.Rotate(ChVector<>(0, -scale.y, 0)), QUNIT);
+      break;
+    default:
+      // type is -1 (triangle mesh)
+      break;
+  }
 }
 
 void MitsubaGenerator::AddSensor(ChVector<> origin, ChVector<> target, ChVector<> up) {

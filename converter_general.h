@@ -57,8 +57,13 @@ int ProcessPovrayLine(std::stringstream& ifile,
       ss >> rad.x >> rad.y;
       rad.z = rad.x;
       break;
+    case chrono::collision::CAPSULE:
+      ss >> rad.x >> rad.y;
+      rad.z = rad.x;
+      break;
     default:
       // type is -1 (triangle mesh)
+      return -1;
       break;
   }
   return type;

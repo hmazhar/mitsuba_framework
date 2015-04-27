@@ -58,6 +58,10 @@ class MitsubaGenerator {
                 const chrono::ChVector<>& scale,
                 const chrono::ChVector<>& position,
                 const chrono::ChQuaternion<>& rotation);
+  void AddSimpleShape(const int type,
+                      const chrono::ChVector<>& scale,
+                      const chrono::ChVector<>& position,
+                      const chrono::ChQuaternion<>& rotation);
 
   void AddSensor(chrono::ChVector<> origin, chrono::ChVector<> target, chrono::ChVector<> up);
 
