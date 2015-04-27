@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
   if (argc == 1) {
     cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
     MitsubaGenerator scene_document;
+    scene_document.camera_up = ChVector<>(0, -1, 0);
     scene_document.camera_origin = ChVector<>(0, 0, -1);
     scene_document.camera_target = ChVector<>(0, 0, 0);
     scene_document.scale = 3;
@@ -19,8 +20,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   stringstream input_file_ss;
-  input_file_ss << argv[1] << ".txt";
-
+  input_file_ss << argv[1] << "_state.txt";
   gzFile gz_file = gzopen(input_file_ss.str().c_str(), "rb");
   unsigned long int size;
   gzread(gz_file, (void*)&size, sizeof(size));
@@ -33,21 +33,52 @@ int main(int argc, char* argv[]) {
   ChQuaternion<> rot;
   ChVector<> pos, vel, scale;
   int counter = 0;
+  // std::cout << data << std::endl;
 
-  SkipLine(data_stream, 6);
+  //  0.01,0.1724,0.147,
+  //  0.01,0.1724,0.147,
+  //  0.147,0.1724,0.01,
+  //  0.147,0.1724,0.01,
+  //  ,,0,0,0,2,0.635,0.01,0.635,
+  //  ,,0,0,0,2,0.635,0.01,0.635,
+  //  ,0.382683,0.92388,0,0 ,0,0,0 ,2,0.635,0.01,0.635,
+  //  ,-0.382683,0.92388,0,0,0,0,0,2, 0.635,0.01,0.635,
+  //
+  //
+  data_document.AddShape("cube", ChVector<>(0.147, 0.01, 0.147), ChVector<>(0, 0.6958, -1.22465e-18),
+                         ChQuaternion<>(6.12323e-17, 1, 0, 0));
+  //  data_document.AddShape("cube", ChVector<>(0.01, 0.1724, 0.147), ChVector<>(-0.137, 0.5334, 1.86636e-17),
+  //                         ChQuaternion<>(6.12323e-17, 1, 0, 0));
+  data_document.AddShape("cube", ChVector<>(0.01, 0.1724, 0.147), ChVector<>(0.137, 0.5334, 1.86636e-17),
+                         ChQuaternion<>(6.12323e-17, 1, 0, 0));
+  data_document.AddShape("cube", ChVector<>(0.147, 0.1724, 0.01), ChVector<>(0, 0.5334, 0.137),
+                         ChQuaternion<>(6.12323e-17, 1, 0, 0));
+  data_document.AddShape("cube", ChVector<>(0.147, 0.1724, 0.01), ChVector<>(0, 0.5334, -0.137),
+                         ChQuaternion<>(6.12323e-17, 1, 0, 0));
+  //  data_document.AddShape("cube", ChVector<>(0.635, 0.01, 0.635), ChVector<>(0.587803, -0.0635, 3.88825e-17),
+  //                         ChQuaternion<>(5.65713e-17, 0.92388, -0.382683, 2.34326e-17));
+  //  data_document.AddShape("cube", ChVector<>(0.635, 0.01, 0.635), ChVector<>(-0.587803, -0.0635, 3.88825e-17),
+  //                         ChQuaternion<>(5.65713e-17, 0.92388, 0.382683, -2.34326e-17));
+  data_document.AddShape("cube", ChVector<>(0.635, 0.01, 0.635), ChVector<>(0, -0.0635, -0.587803),
+                         ChQuaternion<>(0.382683, 0.92388, 0, 0));
+  data_document.AddShape("cube", ChVector<>(0.635, 0.01, 0.635), ChVector<>(0, -0.0635, 0.587803),
+                         ChQuaternion<>(-0.382683, 0.92388, 0, 0));
 
-//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-//  scale.y = scale.z = scale.x;
-//  data_document.AddShape("sphere", scale, pos, rot);
-
-  while (data_stream.fail() == false) {
-    int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  // SkipLine(data_stream, 9);
+  SkipLine(data_stream, 2);
+  // SkipLine(data_stream, 40760);
+  for (int i = 0; i < 40760; i++) {
+    ProcessLine(data_stream, pos, vel, rot);
     if (data_stream.fail() == false) {
-      data_document.AddShape("ring", scale, pos, rot);
-      //SkipLine(data_stream, 15);
+      data_document.AddShape("ring", ChVector<>(1), pos, rot);
     }
   }
-
+  for (int i = 0; i < 55; i++) {
+    ProcessLine(data_stream, pos, vel, rot);
+    if (data_stream.fail() == false) {
+      data_document.AddShape("clasp", ChVector<>(1), pos, rot);
+    }
+  }
   stringstream output_file_ss;
   if (argc == 3) {
     output_file_ss << argv[2] << argv[1] << ".xml";
