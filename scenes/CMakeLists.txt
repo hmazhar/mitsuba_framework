@@ -13,6 +13,7 @@ SET(CONVERTERS
     converter_ces
     converter_cloth
     converter_foam
+    converter_dress
 )
 
 
