@@ -22,7 +22,20 @@ void SkipLine(std::stringstream& ifile, int number = 1) {
     getline(ifile, temp);
   }
 }
-
+void ProcessLine(std::stringstream& ifile,
+                 chrono::ChVector<>& pos,
+                 chrono::ChVector<>& vel,
+                 chrono::ChQuaternion<>& quat) {
+  std::string temp;
+  std::getline(ifile, temp);
+  std::replace(temp.begin(), temp.end(), ',', '\t');
+  std::stringstream ss(temp);
+  double junk;
+  ss >> pos.x >> pos.y >> pos.z;
+  ss >> quat.e0 >> quat.e1 >> quat.e2 >> quat.e3;
+  ss >> vel.x >> vel.y >> vel.z;
+  ss >> junk >> junk >> junk;
+}
 int ProcessPovrayLine(std::stringstream& ifile,
                       chrono::ChVector<>& pos,
                       chrono::ChVector<>& vel,
