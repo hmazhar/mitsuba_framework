@@ -187,7 +187,7 @@ void MitsubaGenerator::AddSimpleShape(const int type,
       AddShape("sphere", scale, position, rotation);
       break;
     case chrono::collision::BOX:
-      AddShape("box", scale, position, rotation);
+      AddShape("cube", scale, position, rotation);
       break;
     case chrono::collision::CYLINDER:
       AddShape("cylinder", scale, position, rotation);
