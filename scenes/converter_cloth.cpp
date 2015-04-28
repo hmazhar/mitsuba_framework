@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   stringstream input_file_ss;
-  input_file_ss << argv[1] << ".txt";
+  input_file_ss << argv[1] << "_state.txt";
 
   gzFile gz_file = gzopen(input_file_ss.str().c_str(), "rb");
   unsigned long int size;
@@ -36,15 +36,17 @@ int main(int argc, char* argv[]) {
 
   SkipLine(data_stream, 6);
 
-//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-//  scale.y = scale.z = scale.x;
-//  data_document.AddShape("sphere", scale, pos, rot);
+  //  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  //  scale.y = scale.z = scale.x;
+  //  data_document.AddShape("sphere", scale, pos, rot);
 
   while (data_stream.fail() == false) {
-    int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+    // int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+    ProcessLine(data_stream, pos, vel, rot);
+
     if (data_stream.fail() == false) {
-      data_document.AddShape("ring", scale, pos, rot);
-      //SkipLine(data_stream, 15);
+      data_document.AddShape("ring", ChVector<>(1, 1, 1), pos, rot);
+      // SkipLine(data_stream, 15);
     }
   }
 
