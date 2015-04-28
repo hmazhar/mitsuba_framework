@@ -21,13 +21,10 @@ int main(int argc, char* argv[]) {
   stringstream input_file_ss;
   input_file_ss << argv[1] << ".txt";
 
-  gzFile gz_file = gzopen(input_file_ss.str().c_str(), "rb");
-  unsigned long int size;
-  gzread(gz_file, (void*)&size, sizeof(size));
-  std::string data;
-  data.resize(size / sizeof(char));
-  gzread(gz_file, (void*)data.data(), size);
-  gzclose(gz_file);
+  string data;
+  ReadCompressed(input_file_ss.str(), data);
+  std::replace(data.begin(), data.end(), ',', '\t');
+
   MitsubaGenerator data_document;
   stringstream data_stream(data);
   ChQuaternion<> rot;

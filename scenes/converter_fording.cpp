@@ -11,8 +11,11 @@ int main(int argc, char* argv[]) {
   }
   stringstream input_file_ss;
   input_file_ss << "data_" << argv[1] << ".dat";
+
   string data;
   ReadCompressed(input_file_ss.str(), data);
+  std::replace(data.begin(), data.end(), ',', '\t');
+
   //std::cout<<data<<std::endl;
   MitsubaGenerator scene_document;
   scene_document.CreateScene(true, false);

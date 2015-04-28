@@ -1,13 +1,15 @@
 #include "converter_general.h"
-#include "MitsubaGenerator.h"
+#include "chrono_utils/ChUtilsMitsuba.h"
 
 using namespace std;
 using namespace chrono;
+using namespace chrono::utils;
+using namespace chrono::collision;
 
 int main(int argc, char* argv[]) {
   if (argc == 1) {
     cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
-    MitsubaGenerator scene_document;
+    ChMitsubaRender scene_document;
     scene_document.camera_origin = ChVector<>(0, .75, -2);
     scene_document.camera_target = ChVector<>(0, .5, -1);
     scene_document.scale = 3;
@@ -25,41 +27,30 @@ int main(int argc, char* argv[]) {
   ReadCompressed(input_file_ss.str(), data);
   std::replace(data.begin(), data.end(), ',', '\t');
 
-  MitsubaGenerator data_document;
-
+  ChMitsubaRender data_document;
   stringstream data_stream(data);
   SkipLine(data_stream, 5);
-
   ChVector<> pos, vel, scale;
   ChQuaternion<> rot;
-
-  int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("base", scale, pos, rot);
+  SkipLine(data_stream, 121167);
+  SkipLine(data_stream, 213744);
+//  for(int i=0; i<121167; i++) {
+//    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+//    if (data_stream.fail() == false) {
+//      data_document.AddShape("sphere_out", ChVector<>(.015 * 2), pos, rot);
+//    }
+//  }
+//  for(int i=0; i<213744; i++) {
+//    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+//    if (data_stream.fail() == false) {
+//      data_document.AddShape("sphere_in", ChVector<>(.015 * 2), pos, rot);
+//    }
+//  }
 
   while (data_stream.fail() == false) {
-    int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-    if (data_stream.fail() == false) {
-      switch (type) {
-        case chrono::collision::SPHERE:
-          data_document.AddShape("sphere", scale, pos, rot);
-          break;
-        case chrono::collision::ELLIPSOID:
-          data_document.AddShape("ellipsoid", scale, pos, rot);
-          break;
-        case chrono::collision::BOX:
-          data_document.AddShape("box", scale, pos, rot);
-          break;
-        case chrono::collision::CYLINDER:
-          data_document.AddShape("cylinder", scale, pos, rot);
-          break;
-        case chrono::collision::CONE:
-          data_document.AddShape("cone", scale, pos, rot);
-          break;
-        default:
-          // type is -1 (triangle mesh)
-          break;
-      }
-    }
+    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+    data_document.AddShape("heart", ChVector<>(1), pos, rot);
+    SkipLine(data_stream, 9);
   }
 
   stringstream output_file_ss;

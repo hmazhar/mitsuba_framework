@@ -21,13 +21,11 @@ int main(int argc, char* argv[]) {
   }
   stringstream input_file_ss;
   input_file_ss << argv[1] << "_state.txt";
-  gzFile gz_file = gzopen(input_file_ss.str().c_str(), "rb");
-  unsigned long int size;
-  gzread(gz_file, (void*)&size, sizeof(size));
-  std::string data;
-  data.resize(size / sizeof(char));
-  gzread(gz_file, (void*)data.data(), size);
-  gzclose(gz_file);
+
+  string data;
+  ReadCompressed(input_file_ss.str(), data);
+  std::replace(data.begin(), data.end(), ',', '\t');
+
   MitsubaGenerator data_document;
   stringstream data_stream(data);
   ChQuaternion<> rot;
@@ -64,6 +62,9 @@ int main(int argc, char* argv[]) {
   data_document.AddShape("cube", ChVector<>(0.635, 0.01, 0.635), ChVector<>(0, -0.0635, 0.587803),
                          ChQuaternion<>(-0.382683, 0.92388, 0, 0));
 
+  ofstream ofile_rings("rings.txt");
+  ofstream ofile_clasp("clasps.txt");
+
   // SkipLine(data_stream, 9);
   SkipLine(data_stream, 2);
   // SkipLine(data_stream, 40760);
@@ -71,14 +72,22 @@ int main(int argc, char* argv[]) {
     ProcessLine(data_stream, pos, vel, rot);
     if (data_stream.fail() == false) {
       data_document.AddShape("ring", ChVector<>(1), pos, rot);
+      ofile_rings << pos.x << " " << pos.y << " " << pos.z << " " << rot.e0 << " " << rot.e1 << " " << rot.e2 << " "
+                  << rot.e3 << std::endl;
     }
   }
   for (int i = 0; i < 55; i++) {
     ProcessLine(data_stream, pos, vel, rot);
     if (data_stream.fail() == false) {
       data_document.AddShape("clasp", ChVector<>(1), pos, rot);
+      ofile_clasp << pos.x << " " << pos.y << " " << pos.z << " " << rot.e0 << " " << rot.e1 << " " << rot.e2 << " "
+                  << rot.e3 << std::endl;
     }
   }
+  ofile_rings.close();
+  ofile_clasp.close();
+
+
   stringstream output_file_ss;
   if (argc == 3) {
     output_file_ss << argv[2] << argv[1] << ".xml";

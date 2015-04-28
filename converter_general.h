@@ -28,7 +28,6 @@ void ProcessLine(std::stringstream& ifile,
                  chrono::ChQuaternion<>& quat) {
   std::string temp;
   std::getline(ifile, temp);
-  std::replace(temp.begin(), temp.end(), ',', '\t');
   std::stringstream ss(temp);
   double junk;
   ss >> pos.x >> pos.y >> pos.z;
@@ -43,7 +42,6 @@ int ProcessPovrayLine(std::stringstream& ifile,
                       chrono::ChQuaternion<>& quat) {
   std::string temp;
   std::getline(ifile, temp);
-  std::replace(temp.begin(), temp.end(), ',', '\t');
   std::stringstream ss(temp);
   int type;
   rad = chrono::ChVector<>(1, 1, 1);
