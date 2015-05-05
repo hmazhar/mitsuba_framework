@@ -14,6 +14,7 @@ SET(CONVERTERS
     converter_cloth
     converter_foam
     converter_dress
+    converter_dress_press
 )
 
 
