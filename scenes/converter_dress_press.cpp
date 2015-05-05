@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
   // SkipLine(data_stream, 40760);
   // the box that presses down
   int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("box", scale, pos, rot);
+  data_document.AddShape("cube", scale, pos, rot);
 
   for (int i = 0; i < 40760; i++) {
     ProcessLine(data_stream, pos, vel, rot);
