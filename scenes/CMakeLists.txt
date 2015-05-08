@@ -15,6 +15,7 @@ SET(CONVERTERS
     converter_foam
     converter_dress
     converter_dress_press
+    converter_viscosity
 )
 
 
