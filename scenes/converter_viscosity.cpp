@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   stringstream input_file_ss;
-  input_file_ss << "data_" << argv[1] << ".dat";
+  input_file_ss << argv[1] << ".dat";
 
   string data;
   ReadCompressed(input_file_ss.str(), data);
@@ -18,16 +18,18 @@ int main(int argc, char* argv[]) {
 
   // std::cout<<data<<std::endl;
   MitsubaGenerator scene_document;
-  scene_document.CreateScene(true, false);
+  scene_document.camera_origin = ChVector<>(0, -.2, -2);
+  scene_document.camera_target = ChVector<>(0, -.2, 0);
+  scene_document.CreateScene(true, true);
   scene_document.Write("scene.xml");
   MitsubaGenerator data_document;
   stringstream data_stream(data);
 
   ChVector<> pos, vel, scale;
   ChQuaternion<> rot;
-  //ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  //data_document.AddShape("box", scale, pos, rot);
-  SkipLine(data_stream, 1);
+  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  data_document.AddShape("box", scale, pos, rot);
+  SkipLine(data_stream, 6);
 
   //  data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), ChQuaternion<>(1, 0, 0, 0));
   //  //
