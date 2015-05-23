@@ -16,6 +16,8 @@ SET(CONVERTERS
     converter_dress
     converter_dress_press
     converter_viscosity
+    converter_bucky
+    converter_snowball
 )
 
 
