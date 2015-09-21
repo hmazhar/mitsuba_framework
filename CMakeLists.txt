@@ -39,11 +39,9 @@ find_package(ZLIB)
 #SET(PARTIO_NAMES ${PARTIO_NAMES} partio)  
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
-FIND_PACKAGE(ChronoEngine)
-
-# Add paths to Chrono headers
-INCLUDE_DIRECTORIES(${CHRONOENGINE_INCLUDES})
-
+find_package(Chrono
+             CONFIG
+)
 IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
 ENDIF()
@@ -65,6 +63,7 @@ SET(MitsubaGenerator_HEADERS
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}
+    ${CHRONO_INCLUDE_DIRS}
     )
 
 # ------------------------------------------------------------------------------
@@ -80,7 +79,7 @@ SET_TARGET_PROPERTIES(MitsubaGenerator PROPERTIES
   LINK_FLAGS "${CH_LINKERFLAG_GPU}"
   COMPILE_DEFINITIONS "CH_API_COMPILE_UTILS")
 
-TARGET_LINK_LIBRARIES(MitsubaGenerator )
+#TARGET_LINK_LIBRARIES(MitsubaGenerator Partio)
 
 INSTALL(TARGETS MitsubaGenerator
     RUNTIME DESTINATION bin

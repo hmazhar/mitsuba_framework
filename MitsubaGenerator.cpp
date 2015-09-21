@@ -1,8 +1,5 @@
 #include "MitsubaGenerator.h"
-#include <collision/ChCModelBullet.h>
-using namespace chrono;
-using namespace chrono::collision;
-using namespace std;
+#include <chrono/collision/ChCModelBullet.h>
 using namespace rapidxml;
 
 xml_node<>* MitsubaGenerator::CreateNewNode(const std::string& type) {
@@ -37,45 +34,45 @@ rapidxml::xml_node<>* MitsubaGenerator::CreateTransform(const std::string& name)
   return transform_root;
 }
 
-rapidxml::xml_node<>* MitsubaGenerator::CreateTransform(const ChVector<>& scale,
-                                                        const ChVector<>& position,
-                                                        const ChQuaternion<>& rotation) {
+rapidxml::xml_node<>* MitsubaGenerator::CreateTransform(const chrono::ChVector<>& scale,
+                                                        const chrono::ChVector<>& position,
+                                                        const chrono::ChQuaternion<>& rotation) {
   xml_node<>* transform_root = CreateTransform("toWorld");
 
   Scale(scale, transform_root);
 
   double angle;
-  ChVector<> axis;
+  chrono::ChVector<> axis;
   rotation.Q_to_AngAxis(angle, axis);
-  angle = angle * 180.0 / CH_C_PI;
+  angle = angle * 180.0 / chrono::CH_C_PI;
   Rotate(angle, axis, transform_root);
   Translate(position, transform_root);
   return transform_root;
 }
 
-std::string MitsubaGenerator::CreateTriplet(const ChVector<>& v) {
-  stringstream ss;
+std::string MitsubaGenerator::CreateTriplet(const chrono::ChVector<>& v) {
+  std::stringstream ss;
   ss << v.x << ", " << v.y << ", " << v.z;
   return ss.str();
 }
-void MitsubaGenerator::CreateXYZTriplet(const ChVector<>& v, xml_node<>* node) {
+void MitsubaGenerator::CreateXYZTriplet(const chrono::ChVector<>& v, xml_node<>* node) {
   AddAttribute("x", std::to_string(v.x), node);
   AddAttribute("y", std::to_string(v.y), node);
   AddAttribute("z", std::to_string(v.z), node);
 }
 
-void MitsubaGenerator::Translate(const ChVector<>& vector, rapidxml::xml_node<>* root) {
+void MitsubaGenerator::Translate(const chrono::ChVector<>& vector, rapidxml::xml_node<>* root) {
   xml_node<>* node = CreateNewNode("translate");
   CreateXYZTriplet(vector, node);
 
   root->append_node(node);
 }
-void MitsubaGenerator::Scale(const ChVector<>& vector, rapidxml::xml_node<>* root) {
+void MitsubaGenerator::Scale(const chrono::ChVector<>& vector, rapidxml::xml_node<>* root) {
   xml_node<>* node = CreateNewNode("scale");
   CreateXYZTriplet(vector, node);
   root->append_node(node);
 }
-void MitsubaGenerator::Rotate(const double angle, const ChVector<>& axis, rapidxml::xml_node<>* root) {
+void MitsubaGenerator::Rotate(const double angle, const chrono::ChVector<>& axis, rapidxml::xml_node<>* root) {
   xml_node<>* node = CreateNewNode("rotate");
 
   CreateXYZTriplet(axis, node);
@@ -83,9 +80,9 @@ void MitsubaGenerator::Rotate(const double angle, const ChVector<>& axis, rapidx
   root->append_node(node);
 }
 
-void MitsubaGenerator::LookAt(const ChVector<>& origin,
-                              const ChVector<>& look_at,
-                              const ChVector<>& up,
+void MitsubaGenerator::LookAt(const chrono::ChVector<>& origin,
+                              const chrono::ChVector<>& look_at,
+                              const chrono::ChVector<>& up,
                               rapidxml::xml_node<>* root) {
   xml_node<>* node = CreateNewNode("lookAt");
 
@@ -128,7 +125,7 @@ void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor, bool ad
   }
   if (add_sky) {
     // Add the Sky emitter
-    root_node->append_node(CreateSky(to_string(scale), to_string(hour), to_string(turbidity), to_string(albedo)));
+    root_node->append_node(CreateSky(std::to_string(scale), std::to_string(hour), std::to_string(turbidity), std::to_string(albedo)));
   }
   xml_node<>* data_include = CreateNewNode("include");
   AddAttribute("filename", "$frame.xml", data_include);
@@ -150,9 +147,9 @@ MitsubaGenerator::MitsubaGenerator() {
   width = 1920;
   height = 1080;
 
-  camera_target = ChVector<>(0, -3, 0);
-  camera_origin = ChVector<>(0, -2, 20);
-  camera_up = ChVector<>(0, 1, 0);
+  camera_target = chrono::ChVector<>(0, -3, 0);
+  camera_origin = chrono::ChVector<>(0, -2, 20);
+  camera_up = chrono::ChVector<>(0, 1, 0);
 
   scale = 3;
   hour = 12;
@@ -161,9 +158,9 @@ MitsubaGenerator::MitsubaGenerator() {
 }
 
 void MitsubaGenerator::AddShape(const std::string& id,
-                                const ChVector<>& scale,
-                                const ChVector<>& position,
-                                const ChQuaternion<>& rotation) {
+                                const chrono::ChVector<>& scale,
+                                const chrono::ChVector<>& position,
+                                const chrono::ChQuaternion<>& rotation) {
   xml_node<>* shape_node = CreateNewNode("shape");  // Create the root integrator node <integrator ...
   AddAttribute("type", "instance", shape_node);     // Set the type of integrator <integrator type="path">
   xml_node<>* reference = CreateNewNode("ref");
@@ -196,9 +193,9 @@ void MitsubaGenerator::AddSimpleShape(const int type,
       AddShape("cone", scale, position, rotation);
       break;
     case chrono::collision::CAPSULE:
-      AddShape("sphere", ChVector<>(scale.x), position + rotation.Rotate(ChVector<>(0, scale.y, 0)), QUNIT);
+      AddShape("sphere", chrono::ChVector<>(scale.x), position + rotation.Rotate(chrono::ChVector<>(0, scale.y, 0)), chrono::QUNIT);
       AddShape("cylinder", scale, position, rotation);
-      AddShape("sphere", ChVector<>(scale.x), position + rotation.Rotate(ChVector<>(0, -scale.y, 0)), QUNIT);
+      AddShape("sphere", chrono::ChVector<>(scale.x), position + rotation.Rotate(chrono::ChVector<>(0, -scale.y, 0)), chrono::QUNIT);
       break;
     default:
       // type is -1 (triangle mesh)
@@ -206,7 +203,7 @@ void MitsubaGenerator::AddSimpleShape(const int type,
   }
 }
 
-void MitsubaGenerator::AddSensor(ChVector<> origin, ChVector<> target, ChVector<> up) {
+void MitsubaGenerator::AddSensor(chrono::ChVector<> origin, chrono::ChVector<> target, chrono::ChVector<> up) {
   /////Sensor
   std::vector<xml_option> sensor_options;
   sensor_options.push_back(xml_option("string", "fovAxis", "smaller"));
@@ -226,8 +223,8 @@ void MitsubaGenerator::AddSensor(ChVector<> origin, ChVector<> target, ChVector<
   /////Film
   std::vector<xml_option> film_options;
   film_options.push_back(xml_option("string", "pixelFormat", "rgba"));
-  film_options.push_back(xml_option("integer", "width", to_string(width)));
-  film_options.push_back(xml_option("integer", "height", to_string(height)));
+  film_options.push_back(xml_option("integer", "width", std::to_string(width)));
+  film_options.push_back(xml_option("integer", "height", std::to_string(height)));
   film_options.push_back(xml_option("boolean", "banner", "false"));
   xml_node<>* film = CreatePlugin("film", "ldrfilm", film_options);
   sensor->append_node(film);
@@ -235,7 +232,7 @@ void MitsubaGenerator::AddSensor(ChVector<> origin, ChVector<> target, ChVector<
 }
 
 void MitsubaGenerator::Write(const std::string& filename) {
-  ofstream ofile(filename);
+  std::ofstream ofile(filename);
   ofile << scene_doc;
 }
 

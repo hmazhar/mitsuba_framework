@@ -1,12 +1,11 @@
-#ifndef MITSUBAGENERATOR_H
-#define MITSUBAGENERATOR_H
+#pragma once
 
 #include <fstream>
 #include <string>
 #include <vector>
 #include <utility>
 #include <sstream>
-#include <core/ChMath.h>
+#include <chrono/core/ChMath.h>
 #include "xml/rapidxml.hpp"
 #include "xml/rapidxml_print.hpp"
 
@@ -84,5 +83,3 @@ class MitsubaGenerator {
   rapidxml::xml_document<> scene_doc;
   rapidxml::xml_node<>* root_node;
 };
-
-#endif
