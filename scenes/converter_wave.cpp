@@ -8,17 +8,17 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
         MitsubaGenerator scene_document;
-        scene_document.camera_origin = ChVector<>(-5, 0, 0);
+        scene_document.camera_origin = ChVector<>(-40, 0, 0);
         scene_document.camera_target = ChVector<>(0, 0, 0);
         scene_document.scale = 3;
         scene_document.turbidity = 10;
         scene_document.CreateScene();
-        scene_document.AddShape("background", ChVector<>(1), ChVector<>(0), ChQuaternion<>(1, 0, 0, 0));
+        scene_document.AddShape("background", ChVector<>(1), ChVector<>(0,-10,0), ChQuaternion<>(1, 0, 0, 0));
         scene_document.Write("scene.xml");
         return 0;
     }
     stringstream input_file_ss;
-    input_file_ss << argv[1] << ".txt";
+    input_file_ss << argv[1] << ".dat";
 
     string data;
     ReadCompressed(input_file_ss.str(), data);
