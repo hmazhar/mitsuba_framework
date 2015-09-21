@@ -18,6 +18,7 @@ SET(CONVERTERS
     converter_viscosity
     converter_bucky
     converter_snowball
+    converter_wave
 )
 
 
