@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
         MitsubaGenerator scene_document;
-        scene_document.camera_origin = ChVector<>(-40, 0, 0);
+        scene_document.camera_origin = ChVector<>(-60, 0, 0);
         scene_document.camera_target = ChVector<>(0, 0, 0);
         scene_document.scale = 3;
         scene_document.turbidity = 10;
