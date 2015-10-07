@@ -19,6 +19,7 @@ SET(CONVERTERS
     converter_bucky
     converter_snowball
     converter_wave
+    converter_drive
 )
 
 
