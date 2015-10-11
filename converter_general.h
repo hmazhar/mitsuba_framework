@@ -86,17 +86,17 @@ void ProcessPosVel(std::stringstream& ifile, chrono::ChVector<>& pos,
 }
 
 //velocity must be scaled from 0-1;
-ChVector<> VelToColor(double v) {
-  ChVector<> c(1, 1, 1);
+chrono::ChVector<> VelToColor(double v) {
+	chrono::ChVector<> c(1, 1, 1);
 
   if (v <= 0.5) {
-    c = (ChVector<>(0, 1, 0) * v * 2.0 + ChVector<>(0, 0, 1) * (.5 - v) * 2.0);
+    c = (chrono::ChVector<>(0, 1, 0) * v * 2.0 + chrono::ChVector<>(0, 0, 1) * (.5 - v) * 2.0);
 
   } else if (v > 0.5 && v < 1.0) {
-    c = (ChVector<>(1, 0, 0) * (v - .5) * 2.0 +
-         ChVector<>(0, 1, 0) * (1.0 - v) * 2.0);
+    c = (chrono::ChVector<>(1, 0, 0) * (v - .5) * 2.0 +
+    		chrono::ChVector<>(0, 1, 0) * (1.0 - v) * 2.0);
   } else {
-    c = ChVector<>(1, 0, 0);
+    c = chrono::ChVector<>(1, 0, 0);
   }
   return c;
 }

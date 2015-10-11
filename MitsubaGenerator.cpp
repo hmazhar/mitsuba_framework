@@ -179,9 +179,6 @@ void MitsubaGenerator::AddCompleteShape(const std::string& id,
 										const chrono::ChQuaternion<>& rotation) {
   xml_node<>* shape_node = CreateNewNode("shape");  // Create the root integrator node <integrator ...
   AddAttribute("type", id, shape_node);     // Set the type of integrator <integrator type="path">
-  xml_node<>* reference = CreateNewNode("ref");
-  AddAttribute("id", material, reference);
-  shape_node->append_node(reference);
   xml_node<>* transform = CreateTransform(scale, position, rotation);
   shape_node->append_node(transform);
 
