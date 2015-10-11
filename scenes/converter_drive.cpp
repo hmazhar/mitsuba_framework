@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   while (data_stream.fail() == false) {
     ProcessPosVel(data_stream, pos, vel);
 
-    double v = vel.Length() / 10.0;
+    double v = vel.Length();
 
     if (data_stream.fail() == false) {
       data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .015,
