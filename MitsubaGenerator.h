@@ -57,6 +57,12 @@ class MitsubaGenerator {
                 const chrono::ChVector<>& scale,
                 const chrono::ChVector<>& position,
                 const chrono::ChQuaternion<>& rotation);
+  void AddCompleteShape(const std::string& id,
+		  	  	  const std::string& material_type,
+		  	  	  const chrono::ChVector<>& color,
+                  const chrono::ChVector<>& scale,
+                  const chrono::ChVector<>& position,
+                  const chrono::ChQuaternion<>& rotation);
   void AddSimpleShape(const int type,
                       const chrono::ChVector<>& scale,
                       const chrono::ChVector<>& position,

@@ -168,9 +168,32 @@ void MitsubaGenerator::AddShape(const std::string& id,
   shape_node->append_node(reference);
   xml_node<>* transform = CreateTransform(scale, position, rotation);
   shape_node->append_node(transform);
-
   root_node->append_node(shape_node);
 }
+
+void MitsubaGenerator::AddCompleteShape(const std::string& id,
+										const std::string& material_type,
+										const chrono::ChVector<>& color,
+										const chrono::ChVector<>& scale,
+										const chrono::ChVector<>& position,
+										const chrono::ChQuaternion<>& rotation) {
+  xml_node<>* shape_node = CreateNewNode("shape");  // Create the root integrator node <integrator ...
+  AddAttribute("type", id, shape_node);     // Set the type of integrator <integrator type="path">
+  xml_node<>* reference = CreateNewNode("ref");
+  AddAttribute("id", material, reference);
+  shape_node->append_node(reference);
+  xml_node<>* transform = CreateTransform(scale, position, rotation);
+  shape_node->append_node(transform);
+
+  xml_node<>* material = CreateNewNode("bsdf");
+  xml_node<>* srgb = CreateNewNode("srgb");
+  AddAttribute("name", "reflectance", srgb);
+  AddAttribute("value", CreateTriplet(color).c_str(), srgb);
+  material->append_node(srgb);
+  shape_node->append_node(material);
+  root_node->append_node(shape_node);
+}
+
 
 void MitsubaGenerator::AddSimpleShape(const int type,
                                       const chrono::ChVector<>& scale,

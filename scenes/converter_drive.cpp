@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   stringstream input_file_ss, input_file_vehicle;
-  input_file_ss << "data" << argv[1] << ".dat";
+  input_file_ss << "data_" << argv[1] << ".dat";
   input_file_vehicle << "vehicle_" << argv[1] << ".dat";
 
   string data;
@@ -41,11 +41,15 @@ int main(int argc, char *argv[]) {
 
   while (data_stream.fail() == false) {
     ProcessPosVel(data_stream, pos, vel);
+
+    double v = vel.Length() / 10.0;
+
     if (data_stream.fail() == false) {
-      data_document.AddShape("sphere", .015, pos, QUNIT);
+      data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .015,
+                                     pos, QUNIT);
     }
   }
-  //std::cout << data_v << std::endl;
+  // std::cout << data_v << std::endl;
 
   ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
   chrono::ChQuaternion<> q;
