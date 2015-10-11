@@ -183,6 +183,7 @@ void MitsubaGenerator::AddCompleteShape(const std::string& id,
   shape_node->append_node(transform);
 
   xml_node<>* material = CreateNewNode("bsdf");
+  AddAttribute("type", "diffuse", material);
   xml_node<>* srgb = CreateNewNode("srgb");
   AddAttribute("name", "reflectance", srgb);
   AddAttribute("value", CreateTriplet(color).c_str(), srgb);
