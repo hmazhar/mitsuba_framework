@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
         MitsubaGenerator scene_document;
-        scene_document.camera_origin = ChVector<>(-60, 0, 0);
+        scene_document.camera_origin = ChVector<>(-80, 0, -80);
         scene_document.camera_target = ChVector<>(0, 0, 0);
         scene_document.scale = 3;
         scene_document.turbidity = 10;
@@ -18,27 +18,32 @@ int main(int argc, char* argv[]) {
         scene_document.Write("scene.xml");
         return 0;
     }
+    std::cout<<"start\n";
     stringstream input_file_ss;
     input_file_ss << argv[1] << ".dat";
 
     string data;
+    std::cout<<"read compressed... ";
     ReadCompressed(input_file_ss.str(), data);
+    std::cout<<"reading done\n";
     //std::replace(data.begin(), data.end(), ',', '\t');
+    std::cout<<"replacing \n";
     __gnu_parallel::replace(data.begin(), data.end(), ',', '\t');
-    MitsubaGenerator data_document;
 
+    MitsubaGenerator data_document;
+    std::cout<<"streaming \n";
     stringstream data_stream(data);
     data.clear();
 
     ChVector<> pos, vel;
-
+    std::cout<<"converting to xml \n";
     while (data_stream.fail() == false) {
         ProcessPosVel(data_stream, pos, vel);
         if (data_stream.fail() == false) {
             data_document.AddShape("sphere", .1, pos, QUNIT);
         }
     }
-
+    std::cout<<"write to xml \n";
     stringstream output_file_ss;
     if (argc == 3) {
         output_file_ss << argv[2] << argv[1] << ".xml";
