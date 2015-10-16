@@ -1,5 +1,6 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
+#include <parallel/algorithm>
 
 using namespace std;
 using namespace chrono;
@@ -22,12 +23,12 @@ int main(int argc, char* argv[]) {
 
     string data;
     ReadCompressed(input_file_ss.str(), data);
-    std::replace(data.begin(), data.end(), ',', '\t');
-
+    //std::replace(data.begin(), data.end(), ',', '\t');
+    __gnu_parallel::replace(data.begin(), data.end(), ',', '\t');
     MitsubaGenerator data_document;
 
     stringstream data_stream(data);
-    // SkipLine(data_stream, 5);
+    data.clear();
 
     ChVector<> pos, vel;
 
