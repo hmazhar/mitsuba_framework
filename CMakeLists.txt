@@ -35,7 +35,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # ------------------------------------------------------------------------------
 
 find_package(ZLIB)
-find_package(libxml2)
+find_package(LibXml2)
 #SET(PARTIO_NAMES ${PARTIO_NAMES} partio)  
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
