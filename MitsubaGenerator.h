@@ -20,8 +20,8 @@ struct xml_option {
 
 class MitsubaGenerator {
  public:
-  MitsubaGenerator();
-  ~MitsubaGenerator() { xmlBufferFree(buf); }
+  MitsubaGenerator(const std::string& filename);
+  ~MitsubaGenerator() {}
 
   void ExportDriver(const std::string& filename);
   // Function creates a node of a specific type
@@ -48,7 +48,7 @@ class MitsubaGenerator {
 
   void CreateScene(bool add_integrator = true, bool add_sensor = true,
                    bool add_sky = true);
-  void Write(const std::string& filename);
+  void Write();
   void SetDataFolder(const std::string& folder) { data_folder = folder; }
   void SetRenderFolder(const std::string& folder) { render_folder = folder; }
 
@@ -82,6 +82,5 @@ class MitsubaGenerator {
   //=========================================================================================================
   // Options
   //=========================================================================================================
-  xmlBufferPtr buf;
   xmlTextWriterPtr writer;
 };

@@ -7,7 +7,7 @@ using namespace chrono;
 int main(int argc, char *argv[]) {
   if (argc == 1) {
     cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
-    MitsubaGenerator scene_document;
+    MitsubaGenerator scene_document("scene.xml");
     scene_document.camera_origin = ChVector<>(0, -10, 0);
     scene_document.camera_target = ChVector<>(0, 0, 0);
     scene_document.camera_up = ChVector<>(0, 0, 1);
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     scene_document.CreateScene();
     // scene_document.AddShape("background", ChVector<>(1), ChVector<>(0, -10,
     // 0), ChQuaternion<>(1, 0, 0, 0));
-    scene_document.Write("scene.xml");
+    scene_document.Write();
     return 0;
   }
   stringstream input_file_ss, input_file_vehicle;
@@ -30,15 +30,20 @@ int main(int argc, char *argv[]) {
   string data_v;
   ReadCompressed(input_file_vehicle.str(), data_v);
   std::replace(data_v.begin(), data_v.end(), ',', '\t');
-
-  MitsubaGenerator data_document;
+  stringstream output_file_ss;
+  if (argc == 3) {
+    output_file_ss << argv[2] << argv[1] << ".xml";
+  } else {
+    output_file_ss << argv[1] << ".xml";
+  }
+  MitsubaGenerator data_document(output_file_ss.str());
 
   stringstream data_stream(data);
   stringstream vehicle_stream(data_v);
 
   ChVector<> pos, vel, scale;
   ChQuaternion<> rot;
-
+  int count = 0;
   while (data_stream.fail() == false) {
     ProcessPosVel(data_stream, pos, vel);
 
@@ -48,6 +53,11 @@ int main(int argc, char *argv[]) {
       data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .015,
                                      pos, QUNIT);
     }
+
+    if (count % 1000 == 0) {
+      std::cout << count << std::endl;
+    }
+    count++;
   }
   // std::cout << data_v << std::endl;
 
@@ -66,12 +76,6 @@ int main(int argc, char *argv[]) {
   ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
   data_document.AddShape("wheel_R", Vector(1, -1, 1), pos, rot);
 
-  stringstream output_file_ss;
-  if (argc == 3) {
-    output_file_ss << argv[2] << argv[1] << ".xml";
-  } else {
-    output_file_ss << argv[1] << ".xml";
-  }
-  data_document.Write(output_file_ss.str());
+  data_document.Write();
   return 0;
 }

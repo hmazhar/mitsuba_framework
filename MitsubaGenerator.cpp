@@ -131,11 +131,9 @@ void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor,
   CloseNode();
 }
 
-MitsubaGenerator::MitsubaGenerator() {
+MitsubaGenerator::MitsubaGenerator(const std::string& filename) {
   // create xml header
-
-  buf = xmlBufferCreate();
-  writer = xmlNewTextWriterMemory(buf, 0);
+  writer = xmlNewTextWriterFilename(filename.c_str(), 0);
   xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
 
   xmlTextWriterStartElement(writer, BAD_CAST "scene");
@@ -255,11 +253,9 @@ void MitsubaGenerator::AddSensor(chrono::ChVector<> origin,
   CloseNode();
 }
 
-void MitsubaGenerator::Write(const std::string& filename) {
+void MitsubaGenerator::Write() {
   xmlTextWriterEndDocument(writer);
   xmlFreeTextWriter(writer);
-  std::ofstream ofile(filename);
-  ofile << buf->content;
 }
 
 void MitsubaGenerator::ExportDriver(const std::string& filename) {}

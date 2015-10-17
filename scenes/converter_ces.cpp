@@ -8,14 +8,15 @@ using namespace chrono::collision;
 int main(int argc, char* argv[]) {
   if (argc == 1) {
     cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
-    MitsubaGenerator scene_document;
+    MitsubaGenerator scene_document("scene.xml");
     scene_document.camera_origin = ChVector<>(.2, .65, -.35) * 100;
     scene_document.camera_target = ChVector<>(-.4, .4, .4) * 100;
     scene_document.scale = 3;
     scene_document.turbidity = 10;
     scene_document.CreateScene();
-    scene_document.AddShape("background", ChVector<>(1), ChVector<>(0), ChQuaternion<>(1, 0, 0, 0));
-    scene_document.Write("scene.xml");
+    scene_document.AddShape("background", ChVector<>(1), ChVector<>(0),
+                            ChQuaternion<>(1, 0, 0, 0));
+    scene_document.Write();
     return 0;
   }
   stringstream input_file_ss;
@@ -24,8 +25,14 @@ int main(int argc, char* argv[]) {
   string data;
   ReadCompressed(input_file_ss.str(), data);
   std::replace(data.begin(), data.end(), ',', '\t');
+  stringstream output_file_ss;
+  if (argc == 3) {
+    output_file_ss << argv[2] << argv[1] << ".xml";
+  } else {
+    output_file_ss << argv[1] << ".xml";
+  }
 
-  MitsubaGenerator data_document;
+  MitsubaGenerator data_document(output_file_ss.str());
   stringstream data_stream(data);
   ChQuaternion<> rot;
   ChVector<> pos, vel, scale;
@@ -38,14 +45,14 @@ int main(int argc, char* argv[]) {
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
-//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-//  data_document.AddShape("flat", scale, pos, rot);
-//  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-//  data_document.AddShape("flat", scale, pos, rot);
+  //  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  //  data_document.AddShape("flat", scale, pos, rot);
+  //  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  //  data_document.AddShape("flat", scale, pos, rot);
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   scale.z = scale.x;
   data_document.AddShape("cylinder_oth", scale, pos, rot);
-  SkipLine(data_stream, 6); //18
+  SkipLine(data_stream, 6);  // 18
   ProcessPovrayLine(data_stream, pos, vel, scale, rot);
   data_document.AddShape("flat", scale, pos, rot);
 
@@ -71,12 +78,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  stringstream output_file_ss;
-  if (argc == 3) {
-    output_file_ss << argv[2] << argv[1] << ".xml";
-  } else {
-    output_file_ss << argv[1] << ".xml";
-  }
-  data_document.Write(output_file_ss.str());
+  data_document.Write();
   return 0;
 }

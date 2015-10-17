@@ -17,10 +17,19 @@ int main(int argc, char* argv[]) {
   std::replace(data.begin(), data.end(), ',', '\t');
 
   // std::cout<<data<<std::endl;
-  MitsubaGenerator scene_document;
+  MitsubaGenerator scene_document("scene.xml");
   scene_document.CreateScene(true, false);
-  scene_document.Write("scene.xml");
-  MitsubaGenerator data_document;
+  scene_document.Write();
+
+  stringstream output_file_ss;
+
+  if (argc == 3) {
+    output_file_ss << argv[2] << argv[1] << ".xml";
+  } else {
+    output_file_ss << argv[1] << ".xml";
+  }
+
+  MitsubaGenerator data_document(output_file_ss.str());
   stringstream data_stream(data);
 
   ChVector<> pos, vel, scale;
@@ -70,11 +79,14 @@ int main(int argc, char* argv[]) {
   data_document.AddShape("wheel", Vector(1, 1, 1), pos, rot);
   SkipLine(data_stream, 22);
 
-  //  data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), ChQuaternion<>(1, 0, 0, 0));
-  //  //
+  data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0),
+                         ChQuaternion<>(1, 0, 0, 0));
+  //
   //  Partio::ParticlesDataMutable& data_p = *Partio::create();
-  //  Partio::ParticleAttribute positionAttr = data_p.addAttribute("position", Partio::VECTOR, 3);
-  //  Partio::ParticleAttribute velocityAttr = data_p.addAttribute("v", Partio::VECTOR, 3);
+  //  Partio::ParticleAttribute positionAttr = data_p.addAttribute("position",
+  //  Partio::VECTOR, 3);
+  //  Partio::ParticleAttribute velocityAttr = data_p.addAttribute("v",
+  //  Partio::VECTOR, 3);
   //
   //  while (data_stream.fail() == false) {
   //    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
@@ -88,31 +100,23 @@ int main(int argc, char* argv[]) {
   //      vel_partio[0] = vel.x;
   //      vel_partio[1] = vel.y;
   //      vel_partio[2] = vel.z;
-  //      //      //std::cout<<vel.Length()<<std::endl;
-  //      // data_document.AddShape("sphere", ChVector<>(0.03), pos, rot);
   //    }
   //  }
-  //  //
+
   //  stringstream partio_ss;
   //  partio_ss << argv[1] << ".bgeo";
   //  Partio::write(partio_ss.str().c_str(), data_p);
 
-  while (data_stream.fail() == false) {
-    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-    if (scale.x == 1) {
-      scale = ChVector<>(0.0175);
-    }
-    if (data_stream.fail() == false) {
-      data_document.AddShape("sphere", scale, pos, rot);
-    }
-  }
-  stringstream output_file_ss;
+  //  while (data_stream.fail() == false) {
+  //    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+  //    if (scale.x == 1) {
+  //      scale = ChVector<>(0.0175);
+  //    }
+  //    if (data_stream.fail() == false) {
+  //      data_document.AddShape("sphere", scale, pos, rot);
+  //    }
+  //  }
 
-  if (argc == 3) {
-    output_file_ss << argv[2] << argv[1] << ".xml";
-  } else {
-    output_file_ss << argv[1] << ".xml";
-  }
-  data_document.Write(output_file_ss.str());
+  data_document.Write();
   return 0;
 }
