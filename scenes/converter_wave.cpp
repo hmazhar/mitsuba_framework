@@ -35,12 +35,19 @@ int main(int argc, char* argv[]) {
     data.clear();
 
     ChVector<> pos, vel;
+    int count = 0;
     std::cout<<"converting to xml \n";
     while (data_stream.fail() == false) {
         ProcessPosVel(data_stream, pos, vel);
         if (data_stream.fail() == false) {
             data_document.AddShape("sphere", .1, pos, QUNIT);
         }
+
+        if(count %1000==0){
+         	std::cout<<count<<std::endl;
+         }
+         count++;
+
     }
     std::cout<<"write to xml \n";
     stringstream output_file_ss;
