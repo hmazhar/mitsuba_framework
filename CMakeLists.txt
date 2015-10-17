@@ -35,7 +35,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # ------------------------------------------------------------------------------
 
 find_package(ZLIB)
-
+find_package(libxml2)
 #SET(PARTIO_NAMES ${PARTIO_NAMES} partio)  
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
@@ -43,7 +43,7 @@ find_package(Chrono
              CONFIG
 )
 IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive -fopenmp -D_GLIBCXX_PARALLEL")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
 ENDIF()
 
 # ------------------------------------------------------------------------------
@@ -64,6 +64,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}
     ${CHRONO_INCLUDE_DIRS}
+    ${LIBXML2_INCLUDE_DIR}
     )
 
 # ------------------------------------------------------------------------------
@@ -72,14 +73,17 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(MitsubaGenerator SHARED
     ${MitsubaGenerator_HEADERS}
-    ${MitsubaGenerator_SOURCES})
+    ${MitsubaGenerator_SOURCES}
+   )
 
 SET_TARGET_PROPERTIES(MitsubaGenerator PROPERTIES
   COMPILE_FLAGS "${CH_BUILDFLAGS}"
   LINK_FLAGS "${CH_LINKERFLAG_GPU}"
   COMPILE_DEFINITIONS "CH_API_COMPILE_UTILS")
 
-#TARGET_LINK_LIBRARIES(MitsubaGenerator Partio)
+ TARGET_LINK_LIBRARIES(MitsubaGenerator ${LIBXML2_LIBRARIES})
+
+#TARGET_LINK_LIBRARIES(MitsubaGenerator Partio )
 
 INSTALL(TARGETS MitsubaGenerator
     RUNTIME DESTINATION bin
