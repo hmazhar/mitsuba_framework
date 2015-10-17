@@ -48,13 +48,13 @@ void MitsubaGenerator::CreateTransform(const chrono::ChVector<>& scale,
 
 std::string MitsubaGenerator::CreateTriplet(const chrono::ChVector<>& v) {
   std::stringstream ss;
-  ss << v.x << ", " << v.y << ", " << v.z;
+  ss << float(v.x) << ", " << float(v.y) << ", " << float(v.z);
   return ss.str();
 }
 void MitsubaGenerator::CreateXYZTriplet(const chrono::ChVector<>& v) {
-  AddAttribute("x", std::to_string(v.x));
-  AddAttribute("y", std::to_string(v.y));
-  AddAttribute("z", std::to_string(v.z));
+  AddAttribute("x", std::to_string(float(v.x)));
+  AddAttribute("y", std::to_string(float(v.y)));
+  AddAttribute("z", std::to_string(float(v.z)));
 }
 
 void MitsubaGenerator::Translate(const chrono::ChVector<>& vector) {
