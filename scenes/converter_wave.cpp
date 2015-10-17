@@ -1,6 +1,5 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
-#include <parallel/algorithm>
 
 using namespace std;
 using namespace chrono;
@@ -26,9 +25,9 @@ int main(int argc, char* argv[]) {
     std::cout<<"read compressed... ";
     ReadCompressed(input_file_ss.str(), data);
     std::cout<<"reading done\n";
-    //std::replace(data.begin(), data.end(), ',', '\t');
     std::cout<<"replacing \n";
-    __gnu_parallel::replace(data.begin(), data.end(), ',', '\t');
+
+    std::replace(data.begin(), data.end(), ',', '\t');
 
     MitsubaGenerator data_document;
     std::cout<<"streaming \n";
