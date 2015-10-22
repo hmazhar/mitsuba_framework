@@ -37,12 +37,13 @@ void MitsubaGenerator::CreateTransform(const chrono::ChVector<>& scale,
   CreateTransform("toWorld");
 
   Scale(scale);
-
-  double angle;
-  chrono::ChVector<> axis;
-  rotation.Q_to_AngAxis(angle, axis);
-  angle = angle * 180.0 / chrono::CH_C_PI;
-  Rotate(angle, axis);
+  if (rotation != chrono::QUNIT) {
+    double angle;
+    chrono::ChVector<> axis;
+    rotation.Q_to_AngAxis(angle, axis);
+    angle = angle * 180.0 / chrono::CH_C_PI;
+    Rotate(angle, axis);
+  }
   Translate(position);
 }
 
