@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   MitsubaGenerator data_document(output_file_ss.str());
 
   ChVector<> pos, vel;
-  int count = 0;
+ // int count = 0;
   std::cout << "converting to xml \n";
   for (int i = 0; i < position.size(); i++) {
     pos.x = position[i].x;
@@ -52,10 +52,10 @@ int main(int argc, char* argv[]) {
     pos.z = position[i].z;
     data_document.AddShape("sphere", .1, pos, QUNIT);
 
-    if (count % 1000 == 0) {
-      std::cout << count << std::endl;
-    }
-    count++;
+//    if (count % 1000 == 0) {
+//      std::cout << count << std::endl;
+//    }
+  //  count++;
   }
   std::cout << "write to xml \n";
 
