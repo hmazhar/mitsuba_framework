@@ -43,7 +43,7 @@ void OpenBinary(std::string filename, std::ifstream& bin_file) {
 }
 
 template <typename T>
-void ReadBinary(std::ifstream& bin_file, std::vector<T> data) {
+void ReadBinary(std::ifstream& bin_file, std::vector<T> & data) {
   size_t size = 0;
   bin_file.read(reinterpret_cast<char*>(&size), sizeof(size));
   data.resize(size);
