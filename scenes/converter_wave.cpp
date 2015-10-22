@@ -18,17 +18,21 @@ int main(int argc, char* argv[]) {
     scene_document.Write();
     return 0;
   }
-  std::cout << "start\n";
   stringstream input_file_ss;
   input_file_ss << argv[1] << ".dat";
 
-  string data;
   std::cout << "read compressed... ";
-  ReadCompressed(input_file_ss.str(), data);
-  std::cout << "reading done\n";
-  std::cout << "replacing \n";
+  std::ifstream ifile;
 
-  std::replace(data.begin(), data.end(), ',', '\t');
+  OpenBinary(input_file_ss.str(), ifile);
+
+  std::vector<half3> position;
+  std::vector<half3> velocity;
+
+  ReadBinary(ifile, position);
+  CloseBinary(ifile);
+
+  std::cout << "reading done\n";
 
   stringstream output_file_ss;
   if (argc == 3) {
@@ -38,18 +42,15 @@ int main(int argc, char* argv[]) {
   }
 
   MitsubaGenerator data_document(output_file_ss.str());
-  std::cout << "streaming \n";
-  stringstream data_stream(data);
-  data.clear();
 
   ChVector<> pos, vel;
   int count = 0;
   std::cout << "converting to xml \n";
-  while (data_stream.fail() == false) {
-    ProcessPosVel(data_stream, pos, vel);
-    if (data_stream.fail() == false) {
-      data_document.AddShape("sphere", .1, pos, QUNIT);
-    }
+  for (int i = 0; i < position.size(); i++) {
+    pos.x = position[i].x;
+    pos.y = position[i].y;
+    pos.z = position[i].z;
+    data_document.AddShape("sphere", .1, pos, QUNIT);
 
     if (count % 1000 == 0) {
       std::cout << count << std::endl;

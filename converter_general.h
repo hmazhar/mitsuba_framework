@@ -6,6 +6,28 @@
 #include <core/ChMath.h>
 #include <collision/ChCModelBullet.h>
 
+#include "half/half.hpp"
+class half2 {
+ public:
+  half2() : x(0.0f), y(0.0f) {}
+
+  half_float::half x, y;
+};
+
+class half3 {
+ public:
+  half3() : x(0.0f), y(0.0f), z(0.0) {}
+
+  half_float::half x, y, z;
+};
+
+class half4 {
+ public:
+  half4() : x(0.0f), y(0.0f), z(0.0), w(0.0) {}
+
+  half_float::half x, y, z, w;
+};
+
 void ReadCompressed(std::string filename, std::string& data) {
   gzFile gz_file = gzopen(filename.c_str(), "rb");
   unsigned long int size;
@@ -15,6 +37,19 @@ void ReadCompressed(std::string filename, std::string& data) {
   gzread(gz_file, (void*)data.data(), size);
   gzclose(gz_file);
 }
+
+void OpenBinary(std::string filename, std::ifstream& bin_file) {
+  bin_file.open(filename.c_str(), std::ios::in | std::ofstream::binary);
+}
+
+template <typename T>
+void ReadBinary(std::ifstream& bin_file, std::vector<T> data) {
+  size_t size = 0;
+  bin_file.read(reinterpret_cast<char*>(&size), sizeof(size));
+  data.resize(size);
+  bin_file.read(reinterpret_cast<char*>(&data[0]), size * sizeof(T));
+}
+void CloseBinary(std::ifstream& bin_file) { bin_file.close(); }
 
 void SkipLine(std::stringstream& ifile, int number = 1) {
   std::string temp;
@@ -85,16 +120,17 @@ void ProcessPosVel(std::stringstream& ifile, chrono::ChVector<>& pos,
   ss >> vel.x >> vel.y >> vel.z;
 }
 
-//velocity must be scaled from 0-1;
+// velocity must be scaled from 0-1;
 chrono::ChVector<> VelToColor(double v) {
-	chrono::ChVector<> c(1, 1, 1);
+  chrono::ChVector<> c(1, 1, 1);
 
   if (v <= 0.5) {
-    c = (chrono::ChVector<>(0, 1, 0) * v * 2.0 + chrono::ChVector<>(0, 0, 1) * (.5 - v) * 2.0);
+    c = (chrono::ChVector<>(0, 1, 0) * v * 2.0 +
+         chrono::ChVector<>(0, 0, 1) * (.5 - v) * 2.0);
 
   } else if (v > 0.5 && v < 1.0) {
     c = (chrono::ChVector<>(1, 0, 0) * (v - .5) * 2.0 +
-    		chrono::ChVector<>(0, 1, 0) * (1.0 - v) * 2.0);
+         chrono::ChVector<>(0, 1, 0) * (1.0 - v) * 2.0);
   } else {
     c = chrono::ChVector<>(1, 0, 0);
   }
