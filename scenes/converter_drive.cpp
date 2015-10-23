@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 
     // double v = vel.Length() * 2;
 
-    data_document.AddShape("sphere", .1, pos, QUNIT);
+    data_document.AddShape("sphere", .015, pos, QUNIT);
     //      data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v),
     //      .015,
     //                                     pos, QUNIT);
