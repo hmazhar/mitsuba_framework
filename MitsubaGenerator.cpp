@@ -225,7 +225,9 @@ void MitsubaGenerator::AddSimpleShape(const int type,
 
 void MitsubaGenerator::AddSensor(chrono::ChVector<> origin,
                                  chrono::ChVector<> target,
-                                 chrono::ChVector<> up) {
+                                 chrono::ChVector<> up,
+                                 std::vector<std::tuple<int, int, std::string> > labels
+                                 ) {
   /////Sensor
   std::vector<xml_option> sensor_options;
   sensor_options.push_back(xml_option("string", "fovAxis", "smaller"));
@@ -249,6 +251,13 @@ void MitsubaGenerator::AddSensor(chrono::ChVector<> origin,
   film_options.push_back(
       xml_option("integer", "height", std::to_string(height)));
   film_options.push_back(xml_option("boolean", "banner", "false"));
+
+  if(labels.size()>0){
+	  for(int i=0; i<labels.size(); i++){
+		  std::tuple<int, int, std::string>label = labels[i];
+		  film_options.push_back(xml_option("string", "label ["+std::to_string(std::get<0>(label))+","+std::to_string(std::get<1>(label))+"]", std::get<2>(label)));
+		 }
+  }
   CreatePlugin("film", "ldrfilm", film_options);
   CloseNode();
   CloseNode();

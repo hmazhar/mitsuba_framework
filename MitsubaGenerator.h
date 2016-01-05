@@ -64,8 +64,7 @@ class MitsubaGenerator {
                       const chrono::ChVector<>& position,
                       const chrono::ChQuaternion<>& rotation);
 
-  void AddSensor(chrono::ChVector<> origin, chrono::ChVector<> target,
-                 chrono::ChVector<> up);
+  void AddSensor(chrono::ChVector<> origin, chrono::ChVector<> target, chrono::ChVector<> up, std::vector<std::tuple<int, int, std::string> > labels = std::vector<std::tuple<int, int, std::string> >());
 
   //=========================================================================================================
   //=========================================================================================================
