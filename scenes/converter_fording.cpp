@@ -1,7 +1,6 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
-
-using namespace std;
+#include <chrono_parallel/math/real3.h>
 using namespace chrono;
 
 double vehicle_speed, driveshaft_speed, motor_torque, motor_speed, output_torque;
@@ -13,12 +12,12 @@ double shock_len_fl, shock_len_fr, shock_len_rl, shock_len_rr;
 std::vector<std::tuple<int, int, std::string> > labels;
 
 void ReadStats(std::string filename) {
-    ifstream ifile(filename.c_str());
+    std::ifstream ifile(filename.c_str());
 
-    string line;
-    getline(ifile, line);
+    std::string line;
+    std::getline(ifile, line);
     std::replace(line.begin(), line.end(), ',', '\t');
-    stringstream ss(line);
+    std::stringstream ss(line);
     ss >> vehicle_speed >> driveshaft_speed >> motor_torque >> motor_speed >> output_torque;
     ss >> wheel_torque_0 >> wheel_torque_1 >> wheel_torque_2 >> wheel_torque_3;
     ss >> wheel_angvel_0 >> wheel_angvel_1 >> wheel_angvel_2 >> wheel_angvel_3;
@@ -36,7 +35,7 @@ void ReadStats(std::string filename) {
 
 int main(int argc, char* argv[]) {
     if (argc == 1) {
-        cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
+        std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
         MitsubaGenerator scene_document("scene.xml");
         scene_document.camera_origin = ChVector<>(0, -10, 0);
         scene_document.camera_target = ChVector<>(0, 0, 0);
@@ -49,7 +48,7 @@ int main(int argc, char* argv[]) {
         scene_document.Write();
         return 0;
     }
-    stringstream input_file_ss, input_file_vehicle, input_stats_vehicle;
+    std::stringstream input_file_ss, input_file_vehicle, input_stats_vehicle;
     input_file_ss << "data_" << argv[1] << ".dat";
     input_file_vehicle << "vehicle_" << argv[1] << ".dat";
     input_stats_vehicle << "stats_" << argv[1] << ".dat";
@@ -62,7 +61,7 @@ int main(int argc, char* argv[]) {
     std::cout << "OpenBinary\n";
     OpenBinary(input_file_ss.str(), ifile);
 
-    std::vector<real3> position;
+    std::vector<chrono::real3> position;
     std::vector<real3> velocity;
     std::cout << "ReadBinary\n";
     ReadBinary(ifile, position);
@@ -70,11 +69,11 @@ int main(int argc, char* argv[]) {
     std::cout << "CloseBinary\n";
     CloseBinary(ifile);
 
-    string data_v;
+    std::string data_v;
     std::cout << "ReadCompressed\n";
     ReadCompressed(input_file_vehicle.str(), data_v);
     std::replace(data_v.begin(), data_v.end(), ',', '\t');
-    stringstream output_file_ss;
+    std::stringstream output_file_ss;
     if (argc == 3) {
         output_file_ss << argv[2] << argv[1] << ".xml";
     } else {
@@ -82,7 +81,7 @@ int main(int argc, char* argv[]) {
     }
     MitsubaGenerator data_document(output_file_ss.str());
 
-    stringstream vehicle_stream(data_v);
+    std::stringstream vehicle_stream(data_v);
 
     ChVector<> pos, vel, scale;
     ChQuaternion<> rot;
@@ -92,13 +91,13 @@ int main(int argc, char* argv[]) {
         pos.x = position[i].x;
         pos.y = position[i].y;
         pos.z = position[i].z;
-//        vel.x = velocity[i].x;
-//        vel.y = velocity[i].y;
-//        vel.z = velocity[i].z;
-//        double v = vel.Length() * 2;
+        vel.x = velocity[i].x;
+        vel.y = velocity[i].y;
+        vel.z = velocity[i].z;
+        double v = vel.Length() * 2;
 
-         data_document.AddShape("sphere", .016, pos, QUNIT);
-        //data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016, pos, QUNIT);
+         //data_document.AddShape("sphere", .016, pos, QUNIT);
+        data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016, pos, QUNIT);
 
         count++;
     }
