@@ -86,6 +86,14 @@ int main(int argc, char* argv[]) {
     ChVector<> pos, vel, scale;
     ChQuaternion<> rot;
     int count = 0;
+    real max_vel = 0;
+
+    for (int i = 0; i < velocity.size(); i++) {
+        vel.x = velocity[i].x;
+        vel.y = velocity[i].y;
+        vel.z = velocity[i].z;
+        max_vel = Max(max_vel, vel.Length());
+    }
 
     for (int i = 0; i < position.size(); i++) {
         pos.x = position[i].x;
@@ -94,10 +102,10 @@ int main(int argc, char* argv[]) {
         vel.x = velocity[i].x;
         vel.y = velocity[i].y;
         vel.z = velocity[i].z;
-        double v = vel.Length() * 2;
+        double v = vel.Length() / max_vel;
 
-         //data_document.AddShape("sphere", .016, pos, QUNIT);
-        data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016, pos, QUNIT);
+        // data_document.AddShape("sphere", .016, pos, QUNIT);
+        data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
 
         count++;
     }
