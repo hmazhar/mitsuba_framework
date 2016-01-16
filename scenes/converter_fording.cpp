@@ -9,6 +9,7 @@ double wheel_linvel_0, wheel_linvel_1, wheel_linvel_2, wheel_linvel_3;
 double wheel_angvel_0, wheel_angvel_1, wheel_angvel_2, wheel_angvel_3;
 double spring_def_fl, spring_def_fr, spring_def_rl, spring_def_rr;
 double shock_len_fl, shock_len_fr, shock_len_rl, shock_len_rr;
+double throttle, braking;
 std::vector<std::tuple<int, int, std::string> > labels;
 
 void ReadStats(std::string filename) {
@@ -23,14 +24,20 @@ void ReadStats(std::string filename) {
     ss >> wheel_angvel_0 >> wheel_angvel_1 >> wheel_angvel_2 >> wheel_angvel_3;
     ss >> spring_def_fl >> spring_def_fr >> spring_def_rl >> spring_def_rr;
     ss >> shock_len_fl >> shock_len_fr >> shock_len_rl >> shock_len_rr;
+    ss >> throttle >> braking;
     ifile.close();
 
-    labels.push_back(std::make_tuple(
-        25, 25, "vehicle speed: " + std::to_string(vehicle_speed) + " [m/s] driveshaft speed: " + std::to_string(driveshaft_speed) + " [rad/s]"));
-    labels.push_back(std::make_tuple(25, 50, "motor torque: " + std::to_string(motor_torque) + " [Nm] motor speed: " + std::to_string(motor_speed) +
-                                                 " [rad/s] output torque: " + std::to_string(output_torque) + "[Nm]"));
-    labels.push_back(std::make_tuple(25, 75, "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " +
-                                                 std::to_string(wheel_torque_2) + ", " + std::to_string(wheel_torque_3) + "] [Nm]"));
+    std::string line_1 = "vehicle speed: " + std::to_string(vehicle_speed) + " [m/s] driveshaft speed: " + std::to_string(driveshaft_speed) + " [rad/s]";
+    std::string line_2 = "motor torque: " + std::to_string(motor_torque) + " [Nm] motor speed: " + std::to_string(motor_speed) + " [rad/s] output torque: " +
+                    std::to_string(output_torque) + "[Nm]";
+    std::string line_3 = "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " + std::to_string(wheel_torque_2) + ", " +
+                    std::to_string(wheel_torque_3) + "] [Nm]";
+    std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
+
+    labels.push_back(std::make_tuple(25, 25, line_1));
+    labels.push_back(std::make_tuple(25, 50, line_2));
+    labels.push_back(std::make_tuple(25, 75, line_3));
+    labels.push_back(std::make_tuple(25, 100, line_4));
 }
 
 int main(int argc, char* argv[]) {
@@ -145,16 +152,16 @@ int main(int argc, char* argv[]) {
 
     SkipLine(vehicle_stream, 5);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("wheel_R", Vector(1, 1, 1), pos, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
     SkipLine(vehicle_stream, 22);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("wheel_R", Vector(1, -1, 1), pos, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
     SkipLine(vehicle_stream, 22);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("wheel_R", Vector(1, 1, 1), pos, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
     SkipLine(vehicle_stream, 22);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("wheel_R", Vector(1, -1, 1), pos, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
 
     data_document.Write();
     return 0;
