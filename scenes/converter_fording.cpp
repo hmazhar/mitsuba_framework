@@ -5,8 +5,8 @@ using namespace chrono;
 
 double vehicle_speed, driveshaft_speed, motor_torque, motor_speed, output_torque;
 double wheel_torque_0, wheel_torque_1, wheel_torque_2, wheel_torque_3;
-double wheel_linvel_0, wheel_linvel_1, wheel_linvel_2, wheel_linvel_3;
-double wheel_angvel_0, wheel_angvel_1, wheel_angvel_2, wheel_angvel_3;
+real3 wheel_linvel_0, wheel_linvel_1, wheel_linvel_2, wheel_linvel_3;
+real3 wheel_angvel_0, wheel_angvel_1, wheel_angvel_2, wheel_angvel_3;
 double spring_def_fl, spring_def_fr, spring_def_rl, spring_def_rr;
 double shock_len_fl, shock_len_fr, shock_len_rl, shock_len_rr;
 double throttle, braking;
@@ -21,7 +21,17 @@ void ReadStats(std::string filename) {
     std::stringstream ss(line);
     ss >> vehicle_speed >> driveshaft_speed >> motor_torque >> motor_speed >> output_torque;
     ss >> wheel_torque_0 >> wheel_torque_1 >> wheel_torque_2 >> wheel_torque_3;
-    ss >> wheel_angvel_0 >> wheel_angvel_1 >> wheel_angvel_2 >> wheel_angvel_3;
+
+    ss >> wheel_linvel_0.x >> wheel_linvel_0.y >> wheel_linvel_0.z   //
+        >> wheel_linvel_1.x >> wheel_linvel_1.y >> wheel_linvel_1.z  //
+        >> wheel_linvel_2.x >> wheel_linvel_2.y >> wheel_linvel_2.z  //
+        >> wheel_linvel_3.x >> wheel_linvel_3.y >> wheel_linvel_3.z;
+
+    ss >> wheel_angvel_0.x >> wheel_angvel_0.y >> wheel_angvel_0.z   //
+        >> wheel_angvel_1.x >> wheel_angvel_1.y >> wheel_angvel_1.z  //
+        >> wheel_angvel_2.x >> wheel_angvel_2.y >> wheel_angvel_2.z  //
+        >> wheel_angvel_3.x >> wheel_angvel_3.y >> wheel_angvel_3.z;
+
     ss >> spring_def_fl >> spring_def_fr >> spring_def_rl >> spring_def_rr;
     ss >> shock_len_fl >> shock_len_fr >> shock_len_rl >> shock_len_rr;
     ss >> throttle >> braking;
@@ -29,9 +39,9 @@ void ReadStats(std::string filename) {
 
     std::string line_1 = "vehicle speed: " + std::to_string(vehicle_speed) + " [m/s] driveshaft speed: " + std::to_string(driveshaft_speed) + " [rad/s]";
     std::string line_2 = "motor torque: " + std::to_string(motor_torque) + " [Nm] motor speed: " + std::to_string(motor_speed) + " [rad/s] output torque: " +
-                    std::to_string(output_torque) + "[Nm]";
-    std::string line_3 = "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " + std::to_string(wheel_torque_2) + ", " +
-                    std::to_string(wheel_torque_3) + "] [Nm]";
+                         std::to_string(output_torque) + "[Nm]";
+    std::string line_3 = "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " + std::to_string(wheel_torque_2) +
+                         ", " + std::to_string(wheel_torque_3) + "] [Nm]";
     std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
 
     labels.push_back(std::make_tuple(25, 25, line_1));
