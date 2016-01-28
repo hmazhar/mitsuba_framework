@@ -40,7 +40,8 @@ find_package(LibXml2)
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
 find_package(Chrono
-             CONFIG
+			 COMPONENTS PARALLEL VEHICLE
+             CONFIG 
 )
 IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CHRONO_CXX_FLAGS} -std=c++11 -fpermissive")
@@ -67,7 +68,7 @@ INCLUDE_DIRECTORIES(
     ${CHRONO_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIR}
     )
-
+SET(LIBRARIES  ${CHRONO_LIBRARIES} )
 # ------------------------------------------------------------------------------
 # ADD THE MitsubaGenerator LIBRARY
 # ------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ SET_TARGET_PROPERTIES(MitsubaGenerator PROPERTIES
   LINK_FLAGS "${CH_LINKERFLAG_GPU}"
   COMPILE_DEFINITIONS "CH_API_COMPILE_UTILS")
 
- TARGET_LINK_LIBRARIES(MitsubaGenerator ${LIBXML2_LIBRARIES})
+ TARGET_LINK_LIBRARIES(MitsubaGenerator ${LIBXML2_LIBRARIES} ${LIBRARIES})
 
 #TARGET_LINK_LIBRARIES(MitsubaGenerator Partio )
 
