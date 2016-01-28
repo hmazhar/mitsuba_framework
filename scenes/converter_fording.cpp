@@ -158,17 +158,17 @@ int main(int argc, char* argv[]) {
     avg_vel /= velocity.size();
     // std::cout <<avg_vel<<std::endl;
     std::sort(lengths.begin(), lengths.end());
-    max_vel = lengths[velocity.size() - 5];
+    max_vel = lengths[velocity.size() - velocity.size() * .1];
 
     real variance = 0;
     for (int i = 0; i < velocity.size(); i++) {
-        variance += (Length(velocity[i]) - avg_vel) * (Length(velocity[i]) - avg_vel);
+        variance += (lengths[i] - avg_vel) * (lengths[i] - avg_vel);
         //        std::cout << lengths[i] << "\n";
     }
     variance /= velocity.size();
 
     real std_dev = sqrt(variance);
-    printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, variance);
+    printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
 
     for (int i = 0; i < position.size(); i++) {
         pos.x = position[i].x;
@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
         vel.x = velocity[i].x;
         vel.y = velocity[i].y;
         vel.z = velocity[i].z;
-        double v = vel.Length() / (max_vel - std_dev);
+        double v = vel.Length() / max_vel;
 
         // data_document.AddShape("sphere", .016, pos, QUNIT);
         data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
