@@ -146,22 +146,29 @@ int main(int argc, char* argv[]) {
     ChQuaternion<> rot;
     int count = 0;
     real max_vel = 0;
-    // real avg_vel = 0;
+    real avg_vel = 0;
     for (int i = 0; i < velocity.size(); i++) {
         vel.x = velocity[i].x;
         vel.y = velocity[i].y;
         vel.z = velocity[i].z;
 
         lengths[i] = vel.Length();
-        // avg_vel +=vel.Length();
+        avg_vel += vel.Length();
     }
-    // avg_vel/=velocity.size();
+    avg_vel /= velocity.size();
     // std::cout <<avg_vel<<std::endl;
     std::sort(lengths.begin(), lengths.end());
     max_vel = lengths[velocity.size() - 5];
+
+    real variance = 0;
     for (int i = 0; i < velocity.size(); i++) {
-        std::cout << lengths[i] << "\n";
+        variance += (Length(velocity[i]) - avg_vel) * (Length(velocity[i]) - avg_vel);
+        //        std::cout << lengths[i] << "\n";
     }
+    variance /= velocity.size();
+
+    real std_dev = sqrt(variance);
+    printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, variance);
 
     for (int i = 0; i < position.size(); i++) {
         pos.x = position[i].x;
@@ -170,7 +177,7 @@ int main(int argc, char* argv[]) {
         vel.x = velocity[i].x;
         vel.y = velocity[i].y;
         vel.z = velocity[i].z;
-        double v = vel.Length() / max_vel;
+        double v = vel.Length() / (max_vel - std_dev);
 
         // data_document.AddShape("sphere", .016, pos, QUNIT);
         data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
