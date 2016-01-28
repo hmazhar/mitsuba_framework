@@ -1,6 +1,7 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
-#include <chrono_parallel/math/real3.h>
+#include <chrono_parallel/math/ChParallelMath.h>
+
 using namespace chrono;
 
 double vehicle_speed, driveshaft_speed, motor_torque, motor_speed, output_torque;
@@ -10,6 +11,13 @@ real3 wheel_angvel_0, wheel_angvel_1, wheel_angvel_2, wheel_angvel_3;
 double spring_def_fl, spring_def_fr, spring_def_rl, spring_def_rr;
 double shock_len_fl, shock_len_fr, shock_len_rl, shock_len_rr;
 double throttle, braking;
+
+real3 chassis_torque, wheel_torquev_0, wheel_torquev_1, wheel_torquev_2, wheel_torquev_3;
+real3 fchassis_torque, fwheel_torquev_0, fwheel_torquev_1, fwheel_torquev_2, fwheel_torquev_3;
+
+real3 chassis_force, wheel_forcev_0, wheel_forcev_1, wheel_forcev_2, wheel_forcev_3;
+real3 fchassis_force, fwheel_forcev_0, fwheel_forcev_1, fwheel_forcev_2, fwheel_forcev_3;
+
 std::vector<std::tuple<int, int, std::string> > labels;
 
 void ReadStats(std::string filename) {
@@ -35,6 +43,31 @@ void ReadStats(std::string filename) {
     ss >> spring_def_fl >> spring_def_fr >> spring_def_rl >> spring_def_rr;
     ss >> shock_len_fl >> shock_len_fr >> shock_len_rl >> shock_len_rr;
     ss >> throttle >> braking;
+
+    ss >> chassis_force.x >> chassis_force.y >> chassis_force.z;
+    ss >> wheel_forcev_0.x >> wheel_forcev_0.y >> wheel_forcev_0.z;
+    ss >> wheel_forcev_1.x >> wheel_forcev_1.y >> wheel_forcev_1.z;
+    ss >> wheel_forcev_2.x >> wheel_forcev_2.y >> wheel_forcev_2.z;
+    ss >> wheel_forcev_3.x >> wheel_forcev_3.y >> wheel_forcev_3.z;
+
+    ss >> chassis_torque.x >> chassis_torque.y >> chassis_torque.z;
+    ss >> wheel_torquev_0.x >> wheel_torquev_0.y >> wheel_torquev_0.z;
+    ss >> wheel_torquev_1.x >> wheel_torquev_1.y >> wheel_torquev_1.z;
+    ss >> wheel_torquev_2.x >> wheel_torquev_2.y >> wheel_torquev_2.z;
+    ss >> wheel_torquev_3.x >> wheel_torquev_3.y >> wheel_torquev_3.z;
+
+    ss >> fchassis_force.x >> fchassis_force.y >> fchassis_force.z;
+    ss >> fwheel_forcev_0.x >> fwheel_forcev_0.y >> fwheel_forcev_0.z;
+    ss >> fwheel_forcev_1.x >> fwheel_forcev_1.y >> fwheel_forcev_1.z;
+    ss >> fwheel_forcev_2.x >> fwheel_forcev_2.y >> fwheel_forcev_2.z;
+    ss >> fwheel_forcev_3.x >> fwheel_forcev_3.y >> fwheel_forcev_3.z;
+
+    ss >> fchassis_torque.x >> fchassis_torque.y >> fchassis_torque.z;
+    ss >> fwheel_torquev_0.x >> fwheel_torquev_0.y >> fwheel_torquev_0.z;
+    ss >> fwheel_torquev_1.x >> fwheel_torquev_1.y >> fwheel_torquev_1.z;
+    ss >> fwheel_torquev_2.x >> fwheel_torquev_2.y >> fwheel_torquev_2.z;
+    ss >> fwheel_torquev_3.x >> fwheel_torquev_3.y >> fwheel_torquev_3.z;
+
     ifile.close();
 
     std::string line_1 = "vehicle speed: " + std::to_string(vehicle_speed) + " [m/s] driveshaft speed: " + std::to_string(driveshaft_speed) + " [rad/s]";
@@ -44,10 +77,16 @@ void ReadStats(std::string filename) {
                          ", " + std::to_string(wheel_torque_3) + "] [Nm]";
     std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
 
+    real ftotal_force = Length(fchassis_force) + Length(fwheel_forcev_0) + Length(fwheel_forcev_1) + Length(fwheel_forcev_2) + Length(fwheel_forcev_3);
+    real total_force = Length(chassis_force) + Length(wheel_forcev_0) + Length(wheel_forcev_1) + Length(wheel_forcev_2) + Length(wheel_forcev_3);
+
+    std::string line_5 = "Force on Vehicle [Total]: " + std::to_string(total_force) + " Force on Vehicle [Fluid]: " + std::to_string(ftotal_force);
+
     labels.push_back(std::make_tuple(25, 25, line_1));
     labels.push_back(std::make_tuple(25, 50, line_2));
     labels.push_back(std::make_tuple(25, 75, line_3));
     labels.push_back(std::make_tuple(25, 100, line_4));
+    labels.push_back(std::make_tuple(25, 125, line_5));
 }
 
 int main(int argc, char* argv[]) {
@@ -101,15 +140,27 @@ int main(int argc, char* argv[]) {
     std::stringstream vehicle_stream(data_v);
 
     ChVector<> pos, vel, scale;
+
+    std::vector<double> lengths(velocity.size());
+
     ChQuaternion<> rot;
     int count = 0;
     real max_vel = 0;
-
+    // real avg_vel = 0;
     for (int i = 0; i < velocity.size(); i++) {
         vel.x = velocity[i].x;
         vel.y = velocity[i].y;
         vel.z = velocity[i].z;
-        max_vel = Max(max_vel, vel.Length());
+
+        lengths[i] = vel.Length();
+        // avg_vel +=vel.Length();
+    }
+    // avg_vel/=velocity.size();
+    // std::cout <<avg_vel<<std::endl;
+    std::sort(lengths.begin(), lengths.end());
+    max_vel = lengths[velocity.size() - 5];
+    for (int i = 0; i < velocity.size(); i++) {
+        std::cout << lengths[i] << "\n";
     }
 
     for (int i = 0; i < position.size(); i++) {
