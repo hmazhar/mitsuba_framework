@@ -6,17 +6,17 @@ using namespace chrono;
 
 double vehicle_speed, driveshaft_speed, motor_torque, motor_speed, output_torque;
 double wheel_torque_0, wheel_torque_1, wheel_torque_2, wheel_torque_3;
-real3 wheel_linvel_0, wheel_linvel_1, wheel_linvel_2, wheel_linvel_3;
-real3 wheel_angvel_0, wheel_angvel_1, wheel_angvel_2, wheel_angvel_3;
+ChVector<> wheel_linvel_0, wheel_linvel_1, wheel_linvel_2, wheel_linvel_3;
+ChVector<> wheel_angvel_0, wheel_angvel_1, wheel_angvel_2, wheel_angvel_3;
 double spring_def_fl, spring_def_fr, spring_def_rl, spring_def_rr;
 double shock_len_fl, shock_len_fr, shock_len_rl, shock_len_rr;
 double throttle, braking;
 
-real3 chassis_torque, wheel_torquev_0, wheel_torquev_1, wheel_torquev_2, wheel_torquev_3;
-real3 fchassis_torque, fwheel_torquev_0, fwheel_torquev_1, fwheel_torquev_2, fwheel_torquev_3;
+ChVector<> chassis_torque, wheel_torquev_0, wheel_torquev_1, wheel_torquev_2, wheel_torquev_3;
+ChVector<> fchassis_torque, fwheel_torquev_0, fwheel_torquev_1, fwheel_torquev_2, fwheel_torquev_3;
 
-real3 chassis_force, wheel_forcev_0, wheel_forcev_1, wheel_forcev_2, wheel_forcev_3;
-real3 fchassis_force, fwheel_forcev_0, fwheel_forcev_1, fwheel_forcev_2, fwheel_forcev_3;
+ChVector<> chassis_force, wheel_forcev_0, wheel_forcev_1, wheel_forcev_2, wheel_forcev_3;
+ChVector<> fchassis_force, fwheel_forcev_0, fwheel_forcev_1, fwheel_forcev_2, fwheel_forcev_3;
 
 std::vector<std::tuple<int, int, std::string> > labels;
 
@@ -77,8 +77,8 @@ void ReadStats(std::string filename) {
                          ", " + std::to_string(wheel_torque_3) + "] [Nm]";
     std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
 
-    real ftotal_force = Length(fchassis_force) + Length(fwheel_forcev_0) + Length(fwheel_forcev_1) + Length(fwheel_forcev_2) + Length(fwheel_forcev_3);
-    real total_force = Length(chassis_force) + Length(wheel_forcev_0) + Length(wheel_forcev_1) + Length(wheel_forcev_2) + Length(wheel_forcev_3);
+    real ftotal_force = fchassis_force.Length() + fwheel_forcev_0.Length() + fwheel_forcev_1.Length() + fwheel_forcev_2.Length() + fwheel_forcev_3.Length();
+    real total_force = chassis_force.Length() + wheel_forcev_0.Length() + wheel_forcev_1.Length() + wheel_forcev_2.Length() + wheel_forcev_3.Length();
 
     std::string line_5 = "Force on Vehicle [Total]: " + std::to_string(total_force) + " Force on Vehicle [Fluid]: " + std::to_string(ftotal_force);
 

@@ -40,7 +40,7 @@ find_package(LibXml2)
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
 find_package(Chrono
-			 COMPONENTS PARALLEL VEHICLE
+			 #COMPONENTS PARALLEL VEHICLE
              CONFIG 
 )
 IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
