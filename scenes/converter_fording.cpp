@@ -181,8 +181,8 @@ int main(int argc, char* argv[]) {
         vel.z = velocity[i].z;
         double v = vel.Length() / max_vel;
 
-        // data_document.AddShape("sphere", .016, pos, QUNIT);
-        data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
+        data_document.AddShape("sphere", .016 * 2, pos, QUNIT);
+        // data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
 
         count++;
     }
