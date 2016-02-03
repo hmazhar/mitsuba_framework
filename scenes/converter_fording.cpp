@@ -20,8 +20,6 @@ ChVector<> fchassis_force, fwheel_forcev_0, fwheel_forcev_1, fwheel_forcev_2, fw
 
 std::vector<std::tuple<int, int, std::string> > labels;
 
-#define STATIC_CAMERA 1
-
 void ReadStats(std::string filename) {
     std::ifstream ifile(filename.c_str());
 
@@ -95,8 +93,8 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
         MitsubaGenerator scene_document("scene.xml");
-        scene_document.camera_origin = ChVector<>(0, -7.4, 4);
-        scene_document.camera_target = ChVector<>(0, -6.4, 3.84);
+        scene_document.camera_origin = ChVector<>(0, -7.4, 3);
+        scene_document.camera_target = ChVector<>(0, -6.4, 2.84);
         scene_document.camera_up = ChVector<>(0, 0, 1);
         scene_document.scale = 3;
         scene_document.turbidity = 10;
@@ -137,6 +135,15 @@ int main(int argc, char* argv[]) {
     } else {
         output_file_ss << argv[1] << ".xml";
     }
+
+    bool color_velocity = true;
+    bool follow_camera = true;
+
+    if (argc == 5) {
+        color_velocity = atoi(argv[3]);
+        follow_camera = atoi(argv[4]);
+    }
+
     MitsubaGenerator data_document(output_file_ss.str());
 
     std::stringstream vehicle_stream(data_v);
@@ -181,8 +188,11 @@ int main(int argc, char* argv[]) {
         vel.z = velocity[i].z;
         double v = vel.Length() / max_vel;
 
-        data_document.AddShape("sphere", .016 * 2, pos, QUNIT);
-        // data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
+        if (color_velocity) {
+            data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
+        } else {
+            data_document.AddShape("sphere", .016 * 2, pos, QUNIT);
+        }
 
         count++;
     }
@@ -214,14 +224,18 @@ int main(int argc, char* argv[]) {
     Vector offset = Vector(0, 0, 0);  // rot.Rotate(Vector(-0.055765, 0, -0.52349));
     data_document.AddShape("chassis", Vector(1, 1, 1), pos + offset, rot);
 
-#ifndef STATIC_CAMERA
-    Vector camera_pos = pos + offset;
-    camera_pos.z = 4;
-    camera_pos.y -= 8;
-    camera_pos.x += 0;
+    if (follow_camera) {
+        Vector camera_pos = pos + offset;
+        camera_pos.z = 4;
+        camera_pos.y -= 8;
+        camera_pos.x += 0;
 
-    data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels);
-#endif
+        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels);
+    } else {
+        Vector camera_pos = ChVector<>(0, -7.4, 3);
+        Vector camera_target = ChVector<>(0, -6.4, 2.84);
+        data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels);
+    }
 
     SkipLine(vehicle_stream, 5);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
