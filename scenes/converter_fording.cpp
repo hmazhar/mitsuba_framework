@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
     ReadCompressed(input_file_vehicle.str(), data_v);
     std::replace(data_v.begin(), data_v.end(), ',', '\t');
     std::stringstream output_file_ss;
-    if (argc == 3) {
+    if (argc >= 3) {
         output_file_ss << argv[2] << argv[1] << ".xml";
     } else {
         output_file_ss << argv[1] << ".xml";
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
     bool color_velocity = true;
     bool follow_camera = true;
 
-    if (argc == 5) {
+    if (argc >= 5) {
         color_velocity = atoi(argv[3]);
         follow_camera = atoi(argv[4]);
     }
