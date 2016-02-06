@@ -201,21 +201,21 @@ int main(int argc, char* argv[]) {
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 3);
+    SkipLine(vehicle_stream, 3); //skip top, and 3 side plates
     //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     //    data_document.AddShape("box", scale, pos, rot);
     //    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
     //    data_document.AddShape("box", scale, pos, rot);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot); //end platform
     data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 1);
+    SkipLine(vehicle_stream, 2); //skip cylinder and end cap
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 1);
+    data_document.AddShape("box", scale, pos, rot); //end platform
+    SkipLine(vehicle_stream, 2);//skip cylinder and end cap
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
+    data_document.AddShape("box", scale, pos, rot); //slope
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
+    data_document.AddShape("box", scale, pos, rot); //slope
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     // chrono::ChQuaternion<> q;
