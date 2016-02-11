@@ -27,7 +27,20 @@ void ReadStats(std::string filename) {
     std::getline(ifile, line);
     std::replace(line.begin(), line.end(), ',', '\t');
     std::stringstream ss(line);
+
+    ChVector<> chassis_pos;
+    real total_force = 0, ftotal_force = 0;
+    real total_torque = 0, ftotal_torque = 0;
+    ss >> chassis_pos.x >> chassis_pos.y >> chassis_pos.z;
     ss >> vehicle_speed >> driveshaft_speed >> motor_torque >> motor_speed >> output_torque;
+
+    ss >> throttle >> braking;
+
+    ss >> total_force;
+    ss >> total_torque;
+    ss >> ftotal_force;
+    ss >> ftotal_torque;
+
     ss >> wheel_torque_0 >> wheel_torque_1 >> wheel_torque_2 >> wheel_torque_3;
 
     ss >> wheel_linvel_0.x >> wheel_linvel_0.y >> wheel_linvel_0.z   //
@@ -42,7 +55,6 @@ void ReadStats(std::string filename) {
 
     ss >> spring_def_fl >> spring_def_fr >> spring_def_rl >> spring_def_rr;
     ss >> shock_len_fl >> shock_len_fr >> shock_len_rl >> shock_len_rr;
-    ss >> throttle >> braking;
 
     ss >> chassis_force.x >> chassis_force.y >> chassis_force.z;
     ss >> wheel_forcev_0.x >> wheel_forcev_0.y >> wheel_forcev_0.z;
@@ -76,9 +88,6 @@ void ReadStats(std::string filename) {
     std::string line_3 = "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " + std::to_string(wheel_torque_2) +
                          ", " + std::to_string(wheel_torque_3) + "] [Nm]";
     std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
-
-    real ftotal_force = fchassis_force.Length() + fwheel_forcev_0.Length() + fwheel_forcev_1.Length() + fwheel_forcev_2.Length() + fwheel_forcev_3.Length();
-    real total_force = chassis_force.Length() + wheel_forcev_0.Length() + wheel_forcev_1.Length() + wheel_forcev_2.Length() + wheel_forcev_3.Length();
 
     std::string line_5 = "Force on Vehicle [Total]: " + std::to_string(total_force) + " Force on Vehicle [Fluid]: " + std::to_string(ftotal_force);
 
@@ -201,21 +210,21 @@ int main(int argc, char* argv[]) {
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 3); //skip top, and 3 side plates
+    SkipLine(vehicle_stream, 5);  // skip 2 cylinder edges, top, and 3 side plates
     //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     //    data_document.AddShape("box", scale, pos, rot);
     //    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
     //    data_document.AddShape("box", scale, pos, rot);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot); //end platform
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);  // end platform
     data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 2); //skip cylinder and end cap
+    SkipLine(vehicle_stream, 2);  // skip cylinder and end cap
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot); //end platform
-    SkipLine(vehicle_stream, 2);//skip cylinder and end cap
+    data_document.AddShape("box", scale, pos, rot);  // end platform
+    SkipLine(vehicle_stream, 2);                     // skip cylinder and end cap
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot); //slope
+    data_document.AddShape("box", scale, pos, rot);  // slope
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot); //slope
+    data_document.AddShape("box", scale, pos, rot);  // slope
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     // chrono::ChQuaternion<> q;
