@@ -1,7 +1,7 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
 #include <chrono_parallel/math/ChParallelMath.h>
-
+#include <sph_trianglemesh.h>
 using namespace chrono;
 
 double vehicle_speed, driveshaft_speed, motor_torque, motor_speed, output_torque;
@@ -139,10 +139,13 @@ int main(int argc, char* argv[]) {
     ReadCompressed(input_file_vehicle.str(), data_v);
     std::replace(data_v.begin(), data_v.end(), ',', '\t');
     std::stringstream output_file_ss;
+    std::stringstream output_mesh_ss;
     if (argc >= 3) {
         output_file_ss << argv[2] << argv[1] << ".xml";
+        output_mesh_ss << argv[2] << argv[1] << ".obj";
     } else {
         output_file_ss << argv[1] << ".xml";
+        output_mesh_ss << argv[1] << ".obj";
     }
 
     bool color_velocity = true;
@@ -187,24 +190,28 @@ int main(int argc, char* argv[]) {
 
     real std_dev = sqrt(variance);
     printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
+    real kernel_radius = .016 * 2;
 
-    for (int i = 0; i < position.size(); i++) {
-        pos.x = position[i].x;
-        pos.y = position[i].y;
-        pos.z = position[i].z;
-        vel.x = velocity[i].x;
-        vel.y = velocity[i].y;
-        vel.z = velocity[i].z;
-        double v = vel.Length() / max_vel;
+    MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
+    data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
 
-        if (color_velocity) {
-            data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), .016 * 2, pos, QUNIT);
-        } else {
-            data_document.AddShape("sphere", .016 * 2, pos, QUNIT);
-        }
-
-        count++;
-    }
+    //    for (int i = 0; i < position.size(); i++) {
+    //        pos.x = position[i].x;
+    //        pos.y = position[i].y;
+    //        pos.z = position[i].z;
+    //        vel.x = velocity[i].x;
+    //        vel.y = velocity[i].y;
+    //        vel.z = velocity[i].z;
+    //        double v = vel.Length() / max_vel;
+    //
+    //        if (color_velocity) {
+    //            data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+    //        } else {
+    //            data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
+    //        }
+    //
+    //        count++;
+    //    }
 
     // std::cout << data_v << std::endl;
 
