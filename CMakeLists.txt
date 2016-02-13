@@ -36,11 +36,13 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 find_package(ZLIB)
 find_package(LibXml2)
+find_package(Thrust)
+
 #SET(PARTIO_NAMES ${PARTIO_NAMES} partio)  
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
 find_package(Chrono
-			 #COMPONENTS PARALLEL VEHICLE
+			 COMPONENTS PARALLEL 
              CONFIG 
 )
 IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -54,10 +56,12 @@ ENDIF()
 
 SET(MitsubaGenerator_SOURCES
     MitsubaGenerator.cpp
+    sph_trianglemesh.cpp
     )
 
 SET(MitsubaGenerator_HEADERS
     MitsubaGenerator.h
+    sph_trianglemesh.h
     )
 
 
@@ -67,6 +71,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}
     ${CHRONO_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIR}
+    ${THRUST_INCLUDE_DIR}
     )
 SET(LIBRARIES  ${CHRONO_LIBRARIES} )
 # ------------------------------------------------------------------------------

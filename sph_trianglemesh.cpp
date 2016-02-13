@@ -258,8 +258,8 @@ chrono::int3 Hash_Decode(uint hash) {
 void ComputeBoundary(std::vector<real3>& pos_marker,
                      real kernel_radius,
                      std::vector<real3>& meshVertices,
-                     std::vector<int>& meshIndices,
-                     std::vector<real3>& meshNormals) {
+                     std::vector<real3>& meshNormals,
+                     std::vector<int>& meshIndices) {
     bbox res(pos_marker[0], pos_marker[0]);
     bbox_transformation unary_op;
     bbox_reduction binary_op;
@@ -275,7 +275,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     diag = max_bounding_point - min_bounding_point;
     bin_edge = kernel_radius;
-    chrono::int3 bins_per_axis = chrono::int3(diag / bin_edge);
+    bins_per_axis = chrono::int3(diag / bin_edge);
     inv_bin_edge = real(1.) / bin_edge;
     grid_size = bins_per_axis.x * bins_per_axis.y * bins_per_axis.z;
     int num_spheres = pos_marker.size();
@@ -376,7 +376,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     Weld(meshIndices, meshVertices, meshNormals);
 }
 
-void WriteMeshToFile(std::string filename, std::vector<int>& meshIndices, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals) {
+void WriteMeshToFile(std::string filename, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals, std::vector<int>& meshIndices) {
     std::ofstream ofile(filename);
 
     for (int i = 0; i < meshVertices.size(); i++) {
@@ -396,6 +396,6 @@ void MarchingCubesToMesh(std::vector<real3>& position, real kernel_radius, std::
     std::vector<chrono::real3> meshVertices;
     std::vector<int> meshIndices;
     std::vector<chrono::real3> meshNormals;
-    ComputeBoundary(position, kernel_radius, meshVertices, meshIndices, meshNormals);
-    WriteMeshToFile(filename, meshVertices, meshIndices, meshNormals);
+    ComputeBoundary(position, kernel_radius, meshVertices, meshNormals, meshIndices);
+    WriteMeshToFile(filename, meshVertices, meshNormals, meshIndices);
 }
