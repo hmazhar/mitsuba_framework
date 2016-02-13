@@ -239,18 +239,18 @@ int main(int argc, char* argv[]) {
     /// rot = rot * q;
     Vector offset = Vector(0, 0, 0);  // rot.Rotate(Vector(-0.055765, 0, -0.52349));
     data_document.AddShape("chassis", Vector(1, 1, 1), pos + offset, rot);
-
+    std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256")};
     if (follow_camera) {
         Vector camera_pos = pos + offset;
         camera_pos.z = 4;
         camera_pos.y -= 8;
         camera_pos.x += 0;
 
-        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels);
+        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "independent", sampler_options);
     } else {
         Vector camera_pos = ChVector<>(0, -7.4, 3);
         Vector camera_target = ChVector<>(0, -6.4, 2.84);
-        data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels);
+        data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "independent", sampler_options);
     }
 
     SkipLine(vehicle_stream, 5);
