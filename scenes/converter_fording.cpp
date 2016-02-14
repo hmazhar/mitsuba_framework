@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
     real kernel_radius = .016 * 2;
 
     MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
-    data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
+    //data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
 
     //    for (int i = 0; i < position.size(); i++) {
     //        pos.x = position[i].x;
