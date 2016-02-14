@@ -1,6 +1,27 @@
 #include "MitsubaGenerator.h"
 #include <chrono/collision/ChCModelBullet.h>
 
+MitsubaGenerator::MitsubaGenerator(const std::string& filename) {
+    // create xml header
+    writer = xmlNewTextWriterFilename(filename.c_str(), 0);
+    xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
+
+    xmlTextWriterStartElement(writer, BAD_CAST "scene");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "version", BAD_CAST "0.5.0");
+
+    width = 1920;
+    height = 1080;
+
+    camera_target = chrono::ChVector<>(0, -3, 0);
+    camera_origin = chrono::ChVector<>(0, -2, 20);
+    camera_up = chrono::ChVector<>(0, 1, 0);
+
+    scale = 3;
+    hour = 12;
+    turbidity = 10;
+    albedo = .15;
+}
+
 void MitsubaGenerator::CreateNewNode(const std::string& type) {
     xmlTextWriterStartElement(writer, BAD_CAST type.c_str());
 }
@@ -83,62 +104,43 @@ void MitsubaGenerator::LookAt(const chrono::ChVector<>& origin, const chrono::Ch
     CloseNode();
 }
 
-void MitsubaGenerator::CreateSky(const std::string& scale, const std::string& hour, const std::string& turbidity, const std::string& albedo) {
-    std::vector<xml_option> sky_options;
-    sky_options.push_back(xml_option("float", "scale", scale));
-    sky_options.push_back(xml_option("float", "hour", hour));
-    sky_options.push_back(xml_option("float", "turbidity", turbidity));
-    sky_options.push_back(xml_option("spectrum", "albedo", albedo));
-    CreatePlugin("emitter", "sky", sky_options);
+void MitsubaGenerator::AddEmitter(std::string emitter,
+                                  std::vector<xml_option> emitter_options,
+                                  const chrono::ChVector<>& scale,
+                                  const chrono::ChVector<>& position,
+                                  const chrono::ChQuaternion<>& rotation) {
+    CreatePlugin("emitter", emitter, emitter_options);
+    CreateTransform(scale, position, rotation);
+    CloseNode();
+    CloseNode();
 }
 
-void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor, bool add_sky) {
-    CreateNewNode("include");
-    AddAttribute("filename", "geometry.xml");
+void MitsubaGenerator::AddIntegrator(std::string integrator, std::vector<xml_option> integrator_options) {
+    CreatePlugin("integrator", integrator, integrator_options);
     CloseNode();
+}
+void MitsubaGenerator::AddInclude(std::string filename) {
+    CreateNewNode("include");
+    AddAttribute("filename", filename);
+    CloseNode();
+}
+void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor, bool add_sky) {
+    AddInclude("geometry.xml");
 
     if (add_integrator) {
-        /////Integrator
-        std::vector<xml_option> integrator_options;
-        integrator_options.push_back(xml_option("boolean", "hideEmitters", "true"));
-        integrator_options.push_back(xml_option("integer", "maxDepth", "10"));
-        integrator_options.push_back(xml_option("integer", "rrDepth", "10"));
-        CreatePlugin("integrator", "path", integrator_options);
-        CloseNode();
+        AddIntegrator();  // Default arguments
     }
     if (add_sensor) {
         AddSensor(camera_origin, camera_target, camera_up);
     }
     if (add_sky) {
         // Add the Sky emitter
-
-        CreateSky(std::to_string(scale), std::to_string(hour), std::to_string(turbidity), std::to_string(albedo));
-        CloseNode();
+        std::vector<xml_option> emitter_options = {xml_option("float", "scale", std::to_string(scale)), xml_option("float", "hour", std::to_string(hour)),
+                                                   xml_option("float", "turbidity", std::to_string(turbidity)),
+                                                   xml_option("spectrum", "albedo", std::to_string(albedo))};
+        AddEmitter("sky", emitter_options);
     }
-    CreateNewNode("include");
-    AddAttribute("filename", "$frame.xml");
-    CloseNode();
-}
-
-MitsubaGenerator::MitsubaGenerator(const std::string& filename) {
-    // create xml header
-    writer = xmlNewTextWriterFilename(filename.c_str(), 0);
-    xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
-
-    xmlTextWriterStartElement(writer, BAD_CAST "scene");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "version", BAD_CAST "0.5.0");
-
-    width = 1920;
-    height = 1080;
-
-    camera_target = chrono::ChVector<>(0, -3, 0);
-    camera_origin = chrono::ChVector<>(0, -2, 20);
-    camera_up = chrono::ChVector<>(0, 1, 0);
-
-    scale = 3;
-    hour = 12;
-    turbidity = 10;
-    albedo = .15;
+    AddInclude("$frame.xml");
 }
 
 void MitsubaGenerator::AddShape(const std::string& id,

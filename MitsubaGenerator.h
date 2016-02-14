@@ -32,7 +32,17 @@ class MitsubaGenerator {
     void CreatePlugin(const std::string& name, const std::string& type, const std::vector<xml_option>& options);
     void CreateTransform(const std::string& name);
     void CreateTransform(const chrono::ChVector<>& scale, const chrono::ChVector<>& position, const chrono::ChQuaternion<>& rotation);
-    void CreateSky(const std::string& scale, const std::string& hour, const std::string& turbidity, const std::string& albedo);
+    void AddIntegrator(std::string integrator = "path",
+                       std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "10"),
+                                                                     xml_option("integer", "rrDepth", "10")});
+    void AddInclude(std::string filename);
+
+    void AddEmitter(std::string emitter = "sky",
+                    std::vector<xml_option> emitter_options = {xml_option("float", "scale", "3"), xml_option("float", "hour", "12"),
+                                                               xml_option("float", "turbidity", "10"), xml_option("spectrum", "albedo", ".15")},
+                    const chrono::ChVector<>& scale = chrono::ChVector<>(1, 1, 1),
+                    const chrono::ChVector<>& position = chrono::ChVector<>(0, 0, 0),
+                    const chrono::ChQuaternion<>& rotation = chrono::ChQuaternion<>(1, 0, 0, 0));
     std::string CreateTriplet(const chrono::ChVector<>& v);
     void CreateXYZTriplet(const chrono::ChVector<>& v);
     void Translate(const chrono::ChVector<>& vector);
