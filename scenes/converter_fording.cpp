@@ -103,12 +103,12 @@ int main(int argc, char* argv[]) {
         std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
         MitsubaGenerator scene_document("scene.xml");
 
-        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "10"),
-                                                      xml_option("integer", "directSamples", "-1"), xml_option("boolean", "twoStage", "true")};
+        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "-1"),
+                                                      xml_option("integer", "rrDepth", "10")};
 
         std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),xml_option("float", "scale", "4.000000")};
         scene_document.AddInclude("geometry.xml");
-        scene_document.AddIntegrator("pssmlt", integrator_options);
+        scene_document.AddIntegrator("volpath", integrator_options);
         scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
 
         scene_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
@@ -256,11 +256,11 @@ int main(int argc, char* argv[]) {
         camera_pos.y -= 8;
         camera_pos.x += 0;
 
-        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "independent", sampler_options);
+        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
     } else {
         Vector camera_pos = ChVector<>(0, -7.4, 3);
         Vector camera_target = ChVector<>(0, -6.4, 2.84);
-        data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "independent", sampler_options);
+        data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     }
 
     SkipLine(vehicle_stream, 5);
