@@ -102,12 +102,24 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
         MitsubaGenerator scene_document("scene.xml");
-        scene_document.camera_origin = ChVector<>(0, -7.4, 3);
-        scene_document.camera_target = ChVector<>(0, -6.4, 2.84);
-        scene_document.camera_up = ChVector<>(0, 0, 1);
-        scene_document.scale = 3;
-        scene_document.turbidity = 10;
-        scene_document.CreateScene();
+
+        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "10"),
+                                                      xml_option("integer", "directSamples", "-1"), xml_option("boolean", "twoStage", "true")};
+
+        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "garage_1k.hdr"),xml_option("float", "scale", "4.000000")};
+        scene_document.AddInclude("geometry.xml");
+        scene_document.AddIntegrator("pssmlt", integrator_options);
+        scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+
+        scene_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+        scene_document.AddInclude("$frame.xml");
+        //
+        //        scene_document.camera_origin = ChVector<>(0, -7.4, 3);
+        //        scene_document.camera_target = ChVector<>(0, -6.4, 2.84);
+        //        scene_document.camera_up = ChVector<>(0, 0, 1);
+        //        scene_document.scale = 3;
+        //        scene_document.turbidity = 10;
+        //        scene_document.CreateScene();
         // scene_document.AddShape("background", ChVector<>(1), ChVector<>(0, -10,
         // 0), ChQuaternion<>(1, 0, 0, 0));
         scene_document.Write();
@@ -143,6 +155,8 @@ int main(int argc, char* argv[]) {
     if (argc >= 3) {
         output_file_ss << argv[2] << argv[1] << ".xml";
         output_mesh_ss << argv[2] << argv[1] << ".obj";
+        std::cout << "Writing Files: " << output_file_ss.str() << " " << output_mesh_ss.str() << "\n";
+
     } else {
         output_file_ss << argv[1] << ".xml";
         output_mesh_ss << argv[1] << ".obj";
@@ -192,27 +206,23 @@ int main(int argc, char* argv[]) {
     printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
     real kernel_radius = .016 * 2;
 
-    MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
-    //data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
-
-    //    for (int i = 0; i < position.size(); i++) {
-    //        pos.x = position[i].x;
-    //        pos.y = position[i].y;
-    //        pos.z = position[i].z;
-    //        vel.x = velocity[i].x;
-    //        vel.y = velocity[i].y;
-    //        vel.z = velocity[i].z;
-    //        double v = vel.Length() / max_vel;
-    //
-    //        if (color_velocity) {
-    //            data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
-    //        } else {
-    //            data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
-    //        }
-    //
-    //        count++;
-    //    }
-
+    if (color_velocity) {
+        for (int i = 0; i < position.size(); i++) {
+            pos.x = position[i].x;
+            pos.y = position[i].y;
+            pos.z = position[i].z;
+            vel.x = velocity[i].x;
+            vel.y = velocity[i].y;
+            vel.z = velocity[i].z;
+            double v = vel.Length() / max_vel;
+            data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+            // data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
+            count++;
+        }
+    } else {
+        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
+        data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
+    }
     // std::cout << data_v << std::endl;
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
