@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
         std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "10"),
                                                       xml_option("integer", "directSamples", "-1"), xml_option("boolean", "twoStage", "true")};
 
-        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "garage_1k.hdr"),xml_option("float", "scale", "4.000000")};
+        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),xml_option("float", "scale", "4.000000")};
         scene_document.AddInclude("geometry.xml");
         scene_document.AddIntegrator("pssmlt", integrator_options);
         scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
