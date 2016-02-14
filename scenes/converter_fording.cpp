@@ -106,7 +106,8 @@ int main(int argc, char* argv[]) {
         std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "-1"),
                                                       xml_option("integer", "rrDepth", "10")};
 
-        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),xml_option("float", "scale", "4.000000")};
+        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),
+                                                   xml_option("float", "scale", "4.000000")};
         scene_document.AddInclude("geometry.xml");
         scene_document.AddIntegrator("volpath", integrator_options);
         scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
@@ -204,9 +205,13 @@ int main(int argc, char* argv[]) {
 
     real std_dev = sqrt(variance);
     printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
-    real kernel_radius = .016 * 2;
 
-    if (color_velocity) {
+    real kernel_radius = .016 * 2;
+    if (argc >= 6) {
+        kernel_radius = .016 * 2 * 0.9;
+    }
+
+    if (color_velocity || argc >= 6) {
         for (int i = 0; i < position.size(); i++) {
             pos.x = position[i].x;
             pos.y = position[i].y;
@@ -215,8 +220,11 @@ int main(int argc, char* argv[]) {
             vel.y = velocity[i].y;
             vel.z = velocity[i].z;
             double v = vel.Length() / max_vel;
-            data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
-            // data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
+            if (color_velocity) {
+                data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+            } else {
+                data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
+            }
             count++;
         }
     } else {
