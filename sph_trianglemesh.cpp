@@ -155,52 +155,18 @@ int Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, int& NewVer
     return (TriangleCount);
 }
 
-struct weak_lt_real3 {
-    bool operator()(const real3& a, const real3& b) {
-        if (a.x < b.x) {
-            return true;
-        }
-        if (b.x < a.x) {
-            return false;
-        }
-        if (a.y < b.y) {
-            return true;
-        }
-        if (b.y < a.y) {
-            return false;
-        }
-        if (a.z < b.z) {
-            return true;
-        }
-        if (b.z < a.z) {
-            return false;
-        }
-        return false;
-    }
-};
-
 void Weld(std::vector<int>& meshIndices, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals) {
     meshIndices.resize(meshVertices.size());
     meshNormals.resize(meshVertices.size());
-
     for (int i = 0; i < meshVertices.size(); i++) {
-        meshVertices[i].x = round(meshVertices[i].x * 1000000) / 1000000.;
-        meshVertices[i].y = round(meshVertices[i].y * 1000000) / 1000000.;
-        meshVertices[i].z = round(meshVertices[i].z * 1000000) / 1000000.;
+        meshVertices[i].x = Round(meshVertices[i].x * 1000000) / 1000000.0;
+        meshVertices[i].y = Round(meshVertices[i].y * 1000000) / 1000000.0;
+        meshVertices[i].z = Round(meshVertices[i].z * 1000000) / 1000000.0;
     }
-
     std::vector<chrono::real3> vertices = meshVertices;
-
-    // std::sort(vertices.begin(), vertices.end(), customSort);
-    // vertices.erase(std::unique(vertices.begin(), vertices.end()), vertices.end());
-    // std::lower_bound(vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin(), customSort);
-    thrust::sort(vertices.begin(), vertices.end(), weak_lt_real3());
-    //
+    thrust::sort(vertices.begin(), vertices.end());
     vertices.erase(thrust::unique(vertices.begin(), vertices.end()), vertices.end());
-    printf("Vert Start: %d Vert end: %d\n", meshVertices.size(), vertices.size());
-    //
-    thrust::lower_bound(vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin(), weak_lt_real3());
-
+    thrust::lower_bound(vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin());
     meshNormals.resize(vertices.size());
     for (int i = 0; i < vertices.size(); i++) {
         meshNormals[i] = GetNormal(vertices[i]);
