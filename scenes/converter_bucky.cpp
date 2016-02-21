@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         output_mesh_ss << argv[1] << ".obj";
     }
 
-    //MarchingCubesToMesh(position, 0.016 * 2, output_mesh_ss.str(), real3(-7, -5, -3), real3(7, 3, 3), .00001);
+    MarchingCubesToMesh(position, 0.016 * 2, output_mesh_ss.str(), real3(-7, -5, -3), real3(7, 3, 3), .00001);
 
     MitsubaGenerator data_document(output_file_ss.str());
 
