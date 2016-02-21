@@ -78,9 +78,9 @@ int main(int argc, char* argv[]) {
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
 
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
-
+//    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+//    data_document.AddShape("box", scale, pos, rot);
+    SkipLine(vehicle_stream, 1);
 //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
 //    data_document.AddShape("box", scale, pos, rot);
     SkipLine(vehicle_stream, 1);
