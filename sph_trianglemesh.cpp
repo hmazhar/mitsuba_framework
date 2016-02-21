@@ -25,6 +25,8 @@ real3 max_bounding_point;
 real3 abs_min = real3(-C_LARGE_REAL, -C_LARGE_REAL, -C_LARGE_REAL);
 real3 abs_max = real3(C_LARGE_REAL, C_LARGE_REAL, C_LARGE_REAL);
 
+real round_to_nearest = .000001;
+
 std::vector<chrono::int3> node_num;
 std::vector<chrono::real3> node_loc;
 std::vector<real> node_mass;
@@ -162,9 +164,9 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
     meshIndices.resize(meshVertices.size());
     meshNormals.resize(meshVertices.size());
     for (uint i = 0; i < meshVertices.size(); i++) {
-        meshVertices[i].x = Round(meshVertices[i].x * 1000000) / 1000000.0;
-        meshVertices[i].y = Round(meshVertices[i].y * 1000000) / 1000000.0;
-        meshVertices[i].z = Round(meshVertices[i].z * 1000000) / 1000000.0;
+        meshVertices[i].x = Round(meshVertices[i].x / round_to_nearest) * round_to_nearest;
+        meshVertices[i].y = Round(meshVertices[i].y / round_to_nearest) * round_to_nearest;
+        meshVertices[i].z = Round(meshVertices[i].z / round_to_nearest) * round_to_nearest;
     }
     std::vector<chrono::real3> vertices = meshVertices;
     thrust::sort(vertices.begin(), vertices.end());
@@ -177,6 +179,7 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
     for (uint i = 0; i < meshIndices.size(); i++) {
         meshIndices[i]++;
     }
+    printf("Welding: input: %d output: %d, tolerance: %f\n", meshVertices.size(), vertices.size(), round_to_nearest);
     meshVertices = vertices;
 }
 
@@ -269,7 +272,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     node_loc.resize(grid_size);
     node_mass.resize(grid_size);
 
-    std::fill(node_mass.begin(), node_mass.end(), -.4);
+    std::fill(node_mass.begin(), node_mass.end(), 0);
 
     for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
@@ -286,10 +289,23 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             node_loc[current_node] = current_node_location;)
     }
 
+    real sum = std::accumulate(node_mass.begin(), node_mass.end(), 0.0);
+    real mean = sum / node_mass.size();
+    real sq_sum = std::inner_product(node_mass.begin(), node_mass.end(), node_mass.begin(), 0.0);
+    real stdev = std::sqrt(sq_sum / node_mass.size() - mean * mean);
+
+    real max_mass = *std::max_element(node_mass.begin(), node_mass.end());
+
+    printf("Max: %f %f %f\n", max_mass, mean, stdev);
+    for (uint nod = 0; nod < grid_size; nod++) {
+        node_mass[nod] = node_mass[nod] - (mean + stdev * .1);
+    }
+
     uint NewVertexCount;
 
     for (uint nod = 0; nod < grid_size; nod++) {
-        if (node_mass[nod] != -1) {
+        // if (node_mass[nod] != -(mean + stdev * .1))
+        {
             chrono::int3 node_index = node_num[nod];
             real3 node_location = node_loc[nod];
 
@@ -370,12 +386,13 @@ void WriteMeshToFile(std::string filename, std::vector<real3>& meshVertices, std
     ofile.close();
 }
 
-void MarchingCubesToMesh(std::vector<real3>& position, real kernel_radius, std::string filename, real3 minp, real3 maxp) {
+void MarchingCubesToMesh(std::vector<real3>& position, real kernel_radius, std::string filename, real3 minp, real3 maxp, real round_to) {
     std::vector<chrono::real3> meshVertices;
     std::vector<uint> meshIndices;
     std::vector<chrono::real3> meshNormals;
     abs_min = minp;
     abs_max = maxp;
+    round_to_nearest = round_to;
     ComputeBoundary(position, kernel_radius, meshVertices, meshNormals, meshIndices);
     WriteMeshToFile(filename, meshVertices, meshNormals, meshIndices);
 }
