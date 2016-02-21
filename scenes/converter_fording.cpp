@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
         std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
         MitsubaGenerator scene_document("scene.xml");
 
-        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "-1"),
+        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "20"),
                                                       xml_option("integer", "rrDepth", "10")};
 
         std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),
@@ -230,7 +230,6 @@ int main(int argc, char* argv[]) {
             count++;
 	}
     } else {
-
         data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
     }
     // std::cout << data_v << std::endl;
