@@ -22,6 +22,9 @@ uint grid_size;
 real3 diag;
 real3 max_bounding_point;
 
+real3 abs_min = real3(-C_LARGE_REAL, -C_LARGE_REAL, -C_LARGE_REAL);
+real3 abs_max = real3(C_LARGE_REAL, C_LARGE_REAL, C_LARGE_REAL);
+
 std::vector<chrono::int3> node_num;
 std::vector<chrono::real3> node_loc;
 std::vector<real> node_mass;
@@ -29,7 +32,7 @@ std::vector<real> node_mass;
 std::vector<real3> _VertexStorage(15);
 std::vector<chrono::int3> _FaceStorage(10);
 
-int GetDensity(real3 xi) {
+uint GetDensity(real3 xi) {
     return GridHash(GridCoord(xi.x, inv_bin_edge, min_bounding_point.x),  //
                     GridCoord(xi.y, inv_bin_edge, min_bounding_point.y),  //
                     GridCoord(xi.z, inv_bin_edge, min_bounding_point.z),  //
@@ -68,9 +71,9 @@ struct GRIDCELL {
     real val[8];  // value of the function at this grid corner
 };
 
-int Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, int& NewVertexCount, std::vector<real3>& Vertices) {
-    int TriangleCount;
-    int CubeIndex;
+uint Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, uint& NewVertexCount, std::vector<real3>& Vertices) {
+    uint TriangleCount;
+    uint CubeIndex;
 
     real3 VertexList[12];
     real3 NewVertexList[12];
@@ -141,7 +144,7 @@ int Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, int& NewVer
         }
     }
 
-    for (int i = 0; i < NewVertexCount; i++) {
+    for (uint i = 0; i < NewVertexCount; i++) {
         Vertices[i] = NewVertexList[i];
     }
 
@@ -155,10 +158,10 @@ int Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, int& NewVer
     return (TriangleCount);
 }
 
-void Weld(std::vector<int>& meshIndices, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals) {
+void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals) {
     meshIndices.resize(meshVertices.size());
     meshNormals.resize(meshVertices.size());
-    for (int i = 0; i < meshVertices.size(); i++) {
+    for (uint i = 0; i < meshVertices.size(); i++) {
         meshVertices[i].x = Round(meshVertices[i].x * 1000000) / 1000000.0;
         meshVertices[i].y = Round(meshVertices[i].y * 1000000) / 1000000.0;
         meshVertices[i].z = Round(meshVertices[i].z * 1000000) / 1000000.0;
@@ -168,10 +171,10 @@ void Weld(std::vector<int>& meshIndices, std::vector<real3>& meshVertices, std::
     vertices.erase(thrust::unique(vertices.begin(), vertices.end()), vertices.end());
     thrust::lower_bound(vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin());
     meshNormals.resize(vertices.size());
-    for (int i = 0; i < vertices.size(); i++) {
+    for (uint i = 0; i < vertices.size(); i++) {
         meshNormals[i] = GetNormal(vertices[i]);
     }
-    for (int i = 0; i < meshIndices.size(); i++) {
+    for (uint i = 0; i < meshIndices.size(); i++) {
         meshIndices[i]++;
     }
     meshVertices = vertices;
@@ -182,13 +185,13 @@ void Weld(std::vector<int>& meshIndices, std::vector<real3>& meshVertices, std::
 //    os.write("VOL", 3);
 //    char version = 3;
 //    os.write((char*)&version, sizeof(char));
-//    int value = 1;
-//    os.write((char*)&value, sizeof(int));
-//    os.write((char*)&bins_per_axis.x, sizeof(int));
-//    os.write((char*)&bins_per_axis.y, sizeof(int));
-//    os.write((char*)&bins_per_axis.z, sizeof(int));
+//    uint value = 1;
+//    os.write((char*)&value, sizeof(uint));
+//    os.write((char*)&bins_per_axis.x, sizeof(uint));
+//    os.write((char*)&bins_per_axis.y, sizeof(uint));
+//    os.write((char*)&bins_per_axis.z, sizeof(uint));
 //    value = 1;
-//    os.write((char*)&value, sizeof(int));
+//    os.write((char*)&value, sizeof(uint));
 //
 //    real minX = min_bounding_point.x;
 //    real minY = min_bounding_point.y;
@@ -205,7 +208,7 @@ void Weld(std::vector<int>& meshIndices, std::vector<real3>& meshVertices, std::
 //    os.write((char*)&maxY, sizeof(real));
 //    os.write((char*)&maxZ, sizeof(real));
 //
-//    for (int nod = 0; nod < grid_size; nod++) {
+//    for (uint nod = 0; nod < grid_size; nod++) {
 //        real mass = node_mass[nod];
 //
 //        os.write((char*)&mass, sizeof(real));
@@ -225,7 +228,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
                      real kernel_radius,
                      std::vector<real3>& meshVertices,
                      std::vector<real3>& meshNormals,
-                     std::vector<int>& meshIndices) {
+                     std::vector<uint>& meshIndices) {
     bbox res(pos_marker[0], pos_marker[0]);
     bbox_transformation unary_op;
     bbox_reduction binary_op;
@@ -237,14 +240,20 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     min_bounding_point = real3((Floor(res.first.x), (res.first.x - kernel_radius * 12)), (Floor(res.first.y), (res.first.y - kernel_radius * 12)),
                                (Floor(res.first.z), (res.first.z - kernel_radius * 12)));
 
-    min_bounding_point.z = Max(-.2, min_bounding_point.z);
+    min_bounding_point.x = Max(abs_min.x, min_bounding_point.x);
+    min_bounding_point.y = Max(abs_min.y, min_bounding_point.y);
+    min_bounding_point.z = Max(abs_min.z, min_bounding_point.z);
+
+    max_bounding_point.x = Min(abs_max.x, max_bounding_point.x);
+    max_bounding_point.y = Min(abs_max.y, max_bounding_point.y);
+    max_bounding_point.z = Min(abs_max.z, max_bounding_point.z);
 
     diag = max_bounding_point - min_bounding_point;
     bin_edge = kernel_radius;
     bins_per_axis = chrono::int3(diag / bin_edge);
     inv_bin_edge = real(1.) / bin_edge;
     grid_size = bins_per_axis.x * bins_per_axis.y * bins_per_axis.z;
-    int num_spheres = pos_marker.size();
+    uint num_spheres = pos_marker.size();
 
     printf("max_bounding_point [%f %f %f]\n", max_bounding_point.x, max_bounding_point.y, max_bounding_point.z);
     printf("min_bounding_point [%f %f %f]\n", min_bounding_point.x, min_bounding_point.y, min_bounding_point.z);
@@ -262,9 +271,12 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     std::fill(node_mass.begin(), node_mass.end(), -.4);
 
-    for (int p = 0; p < num_spheres; p++) {
+    for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
-        if (xi.z < min_bounding_point.z) {
+        if (xi.x < min_bounding_point.x || xi.y < min_bounding_point.y || xi.z < min_bounding_point.z) {
+            continue;
+        }
+        if (xi.x > max_bounding_point.x || xi.y > max_bounding_point.y || xi.z > max_bounding_point.z) {
             continue;
         }
 
@@ -274,24 +286,24 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             node_loc[current_node] = current_node_location;)
     }
 
-    int NewVertexCount;
+    uint NewVertexCount;
 
-    for (int nod = 0; nod < grid_size; nod++) {
+    for (uint nod = 0; nod < grid_size; nod++) {
         if (node_mass[nod] != -1) {
             chrono::int3 node_index = node_num[nod];
             real3 node_location = node_loc[nod];
 
-            int idx = node_index.x;
-            int idy = node_index.y;
-            int idz = node_index.z;
+            uint idx = node_index.x;
+            uint idy = node_index.y;
+            uint idz = node_index.z;
 
             real px = node_location.x;
             real py = node_location.y;
             real pz = node_location.z;
 
-            int mxnum = bins_per_axis.x;
-            int mynum = bins_per_axis.y;
-            int mznum = bins_per_axis.z;
+            uint mxnum = bins_per_axis.x;
+            uint mynum = bins_per_axis.y;
+            uint mznum = bins_per_axis.z;
 
             real3 vertlist[12];
             long edgelist[12];
@@ -315,10 +327,10 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             g.val[6] = node_mass[GetDensity(g.p[6])];
             g.val[7] = node_mass[GetDensity(g.p[7])];
 
-            int triangles = Polygonise(g, _FaceStorage, NewVertexCount, _VertexStorage);
+            uint triangles = Polygonise(g, _FaceStorage, NewVertexCount, _VertexStorage);
 
             if (triangles) {
-                for (int i = 0; i < triangles; i++) {
+                for (uint i = 0; i < triangles; i++) {
                     chrono::int3 face = _FaceStorage[i] + chrono::int3(meshVertices.size() + 1);
 
                     //                    meshIndices.push_back(3 + meshVertices.size());
@@ -342,26 +354,28 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     Weld(meshIndices, meshVertices, meshNormals);
 }
 
-void WriteMeshToFile(std::string filename, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals, std::vector<int>& meshIndices) {
+void WriteMeshToFile(std::string filename, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals, std::vector<uint>& meshIndices) {
     std::ofstream ofile(filename);
 
-    for (int i = 0; i < meshVertices.size(); i++) {
+    for (uint i = 0; i < meshVertices.size(); i++) {
         ofile << "v " << meshVertices[i].x << " " << meshVertices[i].y << " " << meshVertices[i].z << std::endl;
     }
-    for (int i = 0; i < meshNormals.size(); i++) {
+    for (uint i = 0; i < meshNormals.size(); i++) {
         ofile << "vn " << meshNormals[i].x << " " << meshNormals[i].y << " " << meshNormals[i].z << std::endl;
     }
-    for (int i = 0; i < meshIndices.size() / 3; i++) {
+    for (uint i = 0; i < meshIndices.size() / 3; i++) {
         ofile << "f " << meshIndices[i * 3 + 0] << " " << meshIndices[i * 3 + 1] << " " << meshIndices[i * 3 + 2] << std::endl;
     }
 
     ofile.close();
 }
 
-void MarchingCubesToMesh(std::vector<real3>& position, real kernel_radius, std::string filename) {
+void MarchingCubesToMesh(std::vector<real3>& position, real kernel_radius, std::string filename, real3 minp, real3 maxp) {
     std::vector<chrono::real3> meshVertices;
-    std::vector<int> meshIndices;
+    std::vector<uint> meshIndices;
     std::vector<chrono::real3> meshNormals;
+    abs_min = minp;
+    abs_max = maxp;
     ComputeBoundary(position, kernel_radius, meshVertices, meshNormals, meshIndices);
     WriteMeshToFile(filename, meshVertices, meshNormals, meshIndices);
 }

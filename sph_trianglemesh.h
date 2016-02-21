@@ -13,7 +13,11 @@
 #include "chrono_parallel/math/real3.h"        // for real3
 #include "chrono_parallel/math/mat33.h"        // for quaternion, real4
 
-void MarchingCubesToMesh(std::vector<chrono::real3>& position, chrono::real kernel_radius, std::string filename);
+void MarchingCubesToMesh(std::vector<chrono::real3>& position,
+                         chrono::real kernel_radius,
+                         std::string filename,
+                         chrono::real3 minp = chrono::real3(-C_LARGE_REAL, -C_LARGE_REAL, -C_LARGE_REAL),
+                         chrono::real3 maxp = chrono::real3(C_LARGE_REAL, C_LARGE_REAL, C_LARGE_REAL));
 
 int edgeTable[256] = {
     0x0,   0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00, 0x190, 0x99,  0x393, 0x29a, 0x596, 0x49f,
