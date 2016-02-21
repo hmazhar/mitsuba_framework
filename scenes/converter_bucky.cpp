@@ -1,94 +1,109 @@
 #include "converter_general.h"
 #include "MitsubaGenerator.h"
-//#include "Partio.h"
-using namespace std;
+#include <chrono_parallel/math/ChParallelMath.h>
+#include <sph_trianglemesh.h>
 using namespace chrono;
 
+std::vector<std::tuple<int, int, std::string> > labels;
 int main(int argc, char* argv[]) {
-  if (argc == 1) {
-    cout << "REQURES FRAME NUMBER AS ARGUMENT" << endl;
-    // std::cout<<data<<std::endl;
-    MitsubaGenerator scene_document("scene.xml");
-    scene_document.camera_origin = ChVector<>(0, -.2, -2);
-    scene_document.camera_target = ChVector<>(0, -.2, 0);
-    scene_document.CreateScene(true, true);
-    scene_document.Write();
+    labels.clear();
+    if (argc == 1) {
+        std::cout << "REQURES FRAME NUMBER AS ARGUMENT" << std::endl;
+        // std::cout<<data<<std::endl;
+        MitsubaGenerator scene_document("scene.xml");
+        scene_document.AddInclude("geometry.xml");
+        std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256")};
+        scene_document.AddSensor(ChVector<>(0, -11.5, 0), ChVector<>(0, -9, 0), Vector(0, 0, 1), labels, "sobol", sampler_options);
+        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),
+                                                   xml_option("float", "scale", "4.000000")};
+        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "-1"),
+                                                      xml_option("integer", "rrDepth", "10")};
+        scene_document.AddIntegrator("volpath", integrator_options);
+        scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+        scene_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+        scene_document.AddInclude("$frame.xml");
+        // scene_document.CreateScene(true, true);
+        scene_document.Write();
 
-    return 1;
-  }
-  stringstream input_file_ss;
-  input_file_ss << argv[1] << ".dat";
-
-  string data;
-  ReadCompressed(input_file_ss.str(), data);
-  std::replace(data.begin(), data.end(), ',', '\t');
-
-  // std::cout<<data<<std::endl;
-  stringstream output_file_ss;
-
-  if (argc == 3) {
-    output_file_ss << argv[2] << argv[1] << ".xml";
-  } else {
-    output_file_ss << argv[1] << ".xml";
-  }
-  MitsubaGenerator data_document(output_file_ss.str());
-  stringstream data_stream(data);
-
-  ChVector<> pos, vel, scale;
-  ChQuaternion<> rot;
-  // ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  // data_document.AddShape("box", scale, pos, rot);
-  SkipLine(data_stream, 6);
-
-  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("bucky", scale, pos, rot);
-
-  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("bucky", scale, pos, rot);
-
-  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("bucky", scale, pos, rot);
-
-  ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  data_document.AddShape("bucky", scale, pos, rot);
-
-  //    data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0),
-  //    ChQuaternion<>(1, 0, 0, 0));
-  //    //
-  //    Partio::ParticlesDataMutable& data_p = *Partio::create();
-  //    Partio::ParticleAttribute positionAttr = data_p.addAttribute("position",
-  //    Partio::VECTOR, 3);
-  //    Partio::ParticleAttribute velocityAttr = data_p.addAttribute("v",
-  //    Partio::VECTOR, 3);
-  //
-  //    while (data_stream.fail() == false) {
-  //      ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-  //      if (data_stream.fail() == false) {
-  //        Partio::ParticleIndex index = data_p.addParticle();
-  //        float* pos_partio = data_p.dataWrite<float>(positionAttr, index);
-  //        pos_partio[0] = pos.x;
-  //        pos_partio[1] = pos.y;
-  //        pos_partio[2] = pos.z;
-  //        float* vel_partio = data_p.dataWrite<float>(velocityAttr, index);
-  //        vel_partio[0] = vel.x;
-  //        vel_partio[1] = vel.y;
-  //        vel_partio[2] = vel.z;
-  //        //      //std::cout<<vel.Length()<<std::endl;
-  //        // data_document.AddShape("sphere", ChVector<>(0.03), pos, rot);
-  //      }
-  //    }
-  //    //
-  //    stringstream partio_ss;
-  //    partio_ss << argv[1] << ".bgeo";
-  //    Partio::write(partio_ss.str().c_str(), data_p);
-
-  while (data_stream.fail() == false) {
-    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-    if (data_stream.fail() == false) {
-      data_document.AddShape("sphere", scale, pos, rot);
+        return 1;
     }
-  }
+    std::stringstream input_file_ss, input_file_vehicle;
+    input_file_ss << "fluid_" << argv[1] << ".dat";
+    input_file_vehicle << "rigid_" << argv[1] << ".dat";
 
-  data_document.Write();
-  return 0;
+    std::cout << "Opening Files: " << input_file_ss.str() << " " << input_file_vehicle.str() << "\n";
+
+    std::ifstream ifile;
+    std::cout << "OpenBinary\n";
+    OpenBinary(input_file_ss.str(), ifile);
+
+    std::vector<chrono::real3> position;
+    std::vector<real3> velocity;
+    std::cout << "ReadBinary\n";
+    ReadBinary(ifile, position);
+    ReadBinary(ifile, velocity);
+    std::cout << "CloseBinary\n";
+    CloseBinary(ifile);
+
+    std::string data_v;
+    std::cout << "ReadCompressed\n";
+    ReadCompressed(input_file_vehicle.str(), data_v);
+    std::replace(data_v.begin(), data_v.end(), ',', '\t');
+    std::stringstream vehicle_stream(data_v);
+
+    std::stringstream output_file_ss;
+    std::stringstream output_mesh_ss;
+
+    if (argc == 3) {
+        output_file_ss << argv[2] << argv[1] << ".xml";
+        output_mesh_ss << argv[2] << argv[1] << ".obj";
+    } else {
+        output_file_ss << argv[1] << ".xml";
+        output_mesh_ss << argv[1] << ".obj";
+    }
+
+    MarchingCubesToMesh(position, 0.016 * 2, output_mesh_ss.str(), real3(-7, -5, -3), real3(7, 3, 3), .00001);
+
+    MitsubaGenerator data_document(output_file_ss.str());
+
+    data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
+
+    ChVector<> pos, vel, scale;
+    ChQuaternion<> rot;
+#if 1
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+#else
+    SkipLine(vehicle_stream, 6);
+#endif
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("bucky", scale, pos, rot);
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("bucky", scale, pos, rot);
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("bucky", scale, pos, rot);
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("bucky", scale, pos, rot);
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("bucky", scale, pos, rot);
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("bucky", scale, pos, rot);
+    data_document.Write();
+    return 0;
 }
