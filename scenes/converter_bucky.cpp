@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
         scene_document.AddSensor(ChVector<>(0, -11.5, 0), ChVector<>(0, -9, 0), Vector(0, 0, 1), labels, "sobol", sampler_options);
         std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),
                                                    xml_option("float", "scale", "4.000000")};
-        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "-1"),
+        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "20"),
                                                       xml_option("integer", "rrDepth", "10")};
         scene_document.AddIntegrator("volpath", integrator_options);
         scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         output_mesh_ss << argv[1] << ".obj";
     }
 
-    MarchingCubesToMesh(position, 0.016 * 2, output_mesh_ss.str(), real3(-7, -5, -3), real3(7, 3, 3), .00001);
+    //MarchingCubesToMesh(position, 0.016 * 2, output_mesh_ss.str(), real3(-7, -5, -3), real3(7, 3, 3), .00001);
 
     MitsubaGenerator data_document(output_file_ss.str());
 
@@ -72,17 +72,21 @@ int main(int argc, char* argv[]) {
     ChQuaternion<> rot;
 #if 1
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
+    data_document.AddShape("solid_box", scale, pos, rot);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
+
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
+
+//    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+//    data_document.AddShape("box", scale, pos, rot);
+    SkipLine(vehicle_stream, 1);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
+
 #else
     SkipLine(vehicle_stream, 6);
 #endif
