@@ -298,7 +298,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     printf("Max: %f %f %f\n", max_mass, mean, stdev);
     for (uint nod = 0; nod < grid_size; nod++) {
-        node_mass[nod] = node_mass[nod] - (mean + stdev * .1);
+        node_mass[nod] = node_mass[nod] - (mean + stdev * .5);
     }
 
     uint NewVertexCount;
