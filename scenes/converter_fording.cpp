@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
             count++;
         }
     } else {
-        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
+        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-13, -3, -3), real3(13, 3, 3), 0.000001);
         data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
     }
     // std::cout << data_v << std::endl;
