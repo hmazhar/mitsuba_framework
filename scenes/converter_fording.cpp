@@ -211,8 +211,6 @@ int main(int argc, char* argv[]) {
         kernel_radius = .016 * 2 * 0.9;
     }
 
-    MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
-
     if (color_velocity || argc >= 6) {
         for (int i = 0; i < position.size(); i++) {
             pos.x = position[i].x;
@@ -228,8 +226,9 @@ int main(int argc, char* argv[]) {
                 data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
             }
             count++;
-	}
+        }
     } else {
+        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str());
         data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
     }
     // std::cout << data_v << std::endl;
