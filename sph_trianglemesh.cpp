@@ -176,10 +176,29 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
     for (uint i = 0; i < vertices.size(); i++) {
         meshNormals[i] = GetNormal(vertices[i]);
     }
-    for (uint i = 0; i < meshIndices.size(); i++) {
-        meshIndices[i]++;
+    uint start_triangles = meshIndices.size() / 3;
+    std::vector<chrono::uint3> triangles(meshIndices.size() / 3);
+
+    for (uint i = 0; i < triangles.size(); i++) {
+        triangles[i].x = meshIndices[i * 3 + 0];
+        triangles[i].y = meshIndices[i * 3 + 1];
+        triangles[i].z = meshIndices[i * 3 + 2];
+        //triangles[i]=Sort(triangles[i]);
     }
-    printf("Welding: input: %d output: %d, tolerance: %f\n", meshVertices.size(), vertices.size(), round_to_nearest);
+
+    thrust::sort(triangles.begin(), triangles.end());
+
+    uint num_triangles = thrust::unique(triangles.begin(), triangles.end()) - triangles.begin();
+    meshIndices.resize(num_triangles * 3);
+
+    for (uint i = 0; i < num_triangles; i++) {
+        meshIndices[i * 3 + 0] = triangles[i].x + 1;
+        meshIndices[i * 3 + 1] = triangles[i].y + 1;
+        meshIndices[i * 3 + 2] = triangles[i].z + 1;
+    }
+
+    printf("Welding: vert: input: %d output: %d, tri: inpue: %d output: %d tolerance: %f\n", meshVertices.size(), vertices.size(), start_triangles,
+           num_triangles, round_to_nearest);
     meshVertices = vertices;
 }
 
