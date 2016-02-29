@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
     /// rot = rot * q;
     Vector offset = Vector(0, 0, 0);  // rot.Rotate(Vector(-0.055765, 0, -0.52349));
     data_document.AddShape("chassis", Vector(1, 1, 1), pos + offset, rot);
-    std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256")};
+    std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256"), xml_option("integer", "scramble", "$frame")};
     if (follow_camera) {
         Vector camera_pos = pos + offset;
         camera_pos.z = 4;
