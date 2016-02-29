@@ -82,20 +82,21 @@ void ReadStats(std::string filename) {
 
     ifile.close();
 
-    std::string line_1 = "vehicle speed: " + std::to_string(vehicle_speed) + " [m/s] driveshaft speed: " + std::to_string(driveshaft_speed) + " [rad/s]";
-    std::string line_2 = "motor torque: " + std::to_string(motor_torque) + " [Nm] motor speed: " + std::to_string(motor_speed) + " [rad/s] output torque: " +
-                         std::to_string(output_torque) + "[Nm]";
+    std::string line_1 = "vehicle speed: " + std::to_string(vehicle_speed) + " [m/s] driveshaft speed: " + std::to_string(driveshaft_speed) +
+                         " [rad/s] motor speed: " + std::to_string(motor_speed);
+    //    std::string line_2 = "motor torque: " + std::to_string(motor_torque) + " [Nm] motor speed: " + std::to_string(motor_speed) + " [rad/s] output torque:
+    //    " + std::to_string(output_torque) + "[Nm]";
     std::string line_3 = "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " + std::to_string(wheel_torque_2) +
                          ", " + std::to_string(wheel_torque_3) + "] [Nm]";
-    std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
+    std::string line_4 = "throttle: " + std::to_string(throttle / 2.0) + " brake: " + std::to_string(braking);
 
-    std::string line_5 = "Force on Vehicle [Total]: " + std::to_string(total_force) + " Force on Vehicle [Fluid]: " + std::to_string(ftotal_force);
+    std::string line_5 = "Force on Vehicle [Total, Fluid]: [" + std::to_string(total_force) + ", " + std::to_string(ftotal_force) + "] [N]";
 
     labels.push_back(std::make_tuple(25, 25, line_1));
-    labels.push_back(std::make_tuple(25, 50, line_2));
-    labels.push_back(std::make_tuple(25, 75, line_3));
-    labels.push_back(std::make_tuple(25, 100, line_4));
-    labels.push_back(std::make_tuple(25, 125, line_5));
+    // labels.push_back(std::make_tuple(25, 50, line_2));
+    labels.push_back(std::make_tuple(25, 50, line_3));
+    labels.push_back(std::make_tuple(25, 75, line_4));
+    labels.push_back(std::make_tuple(25, 100, line_5));
 }
 
 int main(int argc, char* argv[]) {
@@ -227,8 +228,10 @@ int main(int argc, char* argv[]) {
             }
             count++;
         }
-    } else {
-        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-13, -3, -3), real3(13, 3, 3), 0.000001);
+    }
+    //Always output if fluid sim (because geometry file has it...)
+    if (argc < 6) {
+        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-13, -3, -3), real3(13, 3, 9), 0.000001);
         data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
     }
     // std::cout << data_v << std::endl;
