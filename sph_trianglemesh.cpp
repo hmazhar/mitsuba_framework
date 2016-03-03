@@ -10,7 +10,7 @@
 #include <thrust/binary_search.h>
 #include <thrust/sort.h>
 #include <chrono_parallel/collision/ChBroadphaseUtils.h>
-#include <chrono_parallel/lcp/MPMUtils.h>
+#include <chrono_parallel/physics/MPMUtils.h>
 using namespace chrono;
 using namespace chrono::collision;
 

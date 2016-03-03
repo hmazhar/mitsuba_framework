@@ -11,7 +11,7 @@
 #include "chrono_parallel/math/other_types.h"  // for uint, int2, int3
 #include "chrono_parallel/math/real.h"         // for real
 #include "chrono_parallel/math/real3.h"        // for real3
-#include "chrono_parallel/math/mat33.h"        // for quaternion, real4
+#include "chrono_parallel/math/matrix.h"        // for quaternion, real4
 
 void MarchingCubesToMesh(std::vector<chrono::real3>& position,
                          chrono::real kernel_radius,
