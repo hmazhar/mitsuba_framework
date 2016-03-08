@@ -14,7 +14,7 @@
 using namespace chrono;
 using namespace chrono::collision;
 
-chrono::int3 bins_per_axis;
+chrono::vec3 bins_per_axis;
 real bin_edge;
 real inv_bin_edge;
 real3 min_bounding_point;
@@ -27,12 +27,12 @@ real3 abs_max = real3(C_LARGE_REAL, C_LARGE_REAL, C_LARGE_REAL);
 
 real round_to_nearest = .000001;
 
-std::vector<chrono::int3> node_num;
+std::vector<chrono::vec3> node_num;
 std::vector<chrono::real3> node_loc;
 std::vector<real> node_mass;
 
 std::vector<real3> _VertexStorage(15);
-std::vector<chrono::int3> _FaceStorage(10);
+std::vector<chrono::vec3> _FaceStorage(10);
 
 uint GetDensity(real3 xi) {
     return GridHash(GridCoord(xi.x, inv_bin_edge, min_bounding_point.x),  //
@@ -73,7 +73,7 @@ struct GRIDCELL {
     real val[8];  // value of the function at this grid corner
 };
 
-uint Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, uint& NewVertexCount, std::vector<real3>& Vertices) {
+uint Polygonise(GRIDCELL& Grid, std::vector<chrono::vec3>& Triangles, uint& NewVertexCount, std::vector<real3>& Vertices) {
     uint TriangleCount;
     uint CubeIndex;
 
@@ -153,7 +153,7 @@ uint Polygonise(GRIDCELL& Grid, std::vector<chrono::int3>& Triangles, uint& NewV
     TriangleCount = 0;
     for (uint i = 0; triTable[CubeIndex][i] != -1; i += 3) {
         Triangles[TriangleCount] =
-            chrono::int3(LocalRemap[triTable[CubeIndex][i + 0]], LocalRemap[triTable[CubeIndex][i + 1]], LocalRemap[triTable[CubeIndex][i + 2]]);
+            chrono::vec3(LocalRemap[triTable[CubeIndex][i + 0]], LocalRemap[triTable[CubeIndex][i + 1]], LocalRemap[triTable[CubeIndex][i + 2]]);
         TriangleCount++;
     }
 
@@ -177,7 +177,7 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
         meshNormals[i] = GetNormal(vertices[i]);
     }
     uint start_triangles = meshIndices.size() / 3;
-    std::vector<chrono::uint3> triangles(meshIndices.size() / 3);
+    std::vector<chrono::uvec3> triangles(meshIndices.size() / 3);
 
     for (uint i = 0; i < triangles.size(); i++) {
         triangles[i].x = meshIndices[i * 3 + 0];
@@ -238,8 +238,8 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
 //    os.close();
 //}
 
-chrono::int3 Hash_Decode(uint hash) {
-    chrono::int3 decoded_hash;
+chrono::vec3 Hash_Decode(uint hash) {
+    chrono::vec3 decoded_hash;
     decoded_hash.x = hash % (bins_per_axis.x * bins_per_axis.y) % bins_per_axis.x;
     decoded_hash.y = (hash % (bins_per_axis.x * bins_per_axis.y)) / bins_per_axis.x;
     decoded_hash.z = hash / (bins_per_axis.x * bins_per_axis.y);
@@ -272,7 +272,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     diag = max_bounding_point - min_bounding_point;
     bin_edge = kernel_radius;
-    bins_per_axis = chrono::int3(diag / bin_edge);
+    bins_per_axis = chrono::vec3(diag / bin_edge);
     inv_bin_edge = real(1.) / bin_edge;
     grid_size = bins_per_axis.x * bins_per_axis.y * bins_per_axis.z;
     uint num_spheres = pos_marker.size();
@@ -304,7 +304,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
         LOOPOVERNODES(                                                               //
             node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);  //
-            node_num[current_node] = chrono::int3(cx, cy, cz);                       //
+            node_num[current_node] = chrono::vec3(cx, cy, cz);                       //
             node_loc[current_node] = current_node_location;)
     }
 
@@ -325,7 +325,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     for (uint nod = 0; nod < grid_size; nod++) {
         // if (node_mass[nod] != -(mean + stdev * .1))
         {
-            chrono::int3 node_index = node_num[nod];
+            chrono::vec3 node_index = node_num[nod];
             real3 node_location = node_loc[nod];
 
             uint idx = node_index.x;
@@ -366,7 +366,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
             if (triangles) {
                 for (uint i = 0; i < triangles; i++) {
-                    chrono::int3 face = _FaceStorage[i] + chrono::int3(meshVertices.size() + 1);
+                    chrono::vec3 face = _FaceStorage[i] + chrono::vec3(meshVertices.size() + 1);
 
                     //                    meshIndices.push_back(3 + meshVertices.size());
                     //                    meshIndices.push_back(2 + meshVertices.size());
