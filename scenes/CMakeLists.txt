@@ -21,6 +21,7 @@ SET(CONVERTERS
     converter_wave
     converter_drive
     converter_shaker
+    converter_sls
 )
 
 
