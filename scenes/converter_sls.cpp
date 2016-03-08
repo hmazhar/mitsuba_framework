@@ -6,14 +6,29 @@ using namespace chrono;
 
 int main(int argc, char* argv[]) {
     if (argc == 1) {
-        cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << endl;
+        std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
         MitsubaGenerator scene_document("scene.xml");
-        scene_document.camera_origin = ChVector<>(0, .75, -2);
-        scene_document.camera_target = ChVector<>(0, .5, -1);
-        scene_document.scale = 3;
-        scene_document.turbidity = 10;
-        scene_document.CreateScene();
-        scene_document.AddShape("background", ChVector<>(1), ChVector<>(0), ChQuaternion<>(1, 0, 0, 0));
+
+        std::vector<xml_option> integrator_options = {xml_option("boolean", "hideEmitters", "true"), xml_option("integer", "maxDepth", "20"),
+                                                      xml_option("integer", "rrDepth", "10")};
+
+        std::vector<xml_option> emitter_options = {xml_option("string", "filename", "interior_hdri_2_20150408_1285285587.jpg"),
+                                                   xml_option("float", "scale", "4.000000")};
+        scene_document.AddInclude("geometry.xml");
+        scene_document.AddIntegrator("path", integrator_options);
+        scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+
+        scene_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+        scene_document.AddInclude("$frame.xml");
+        //
+        //        scene_document.camera_origin = ChVector<>(0, -7.4, 3);
+        //        scene_document.camera_target = ChVector<>(0, -6.4, 2.84);
+        //        scene_document.camera_up = ChVector<>(0, 0, 1);
+        //        scene_document.scale = 3;
+        //        scene_document.turbidity = 10;
+        //        scene_document.CreateScene();
+        // scene_document.AddShape("background", ChVector<>(1), ChVector<>(0, -10,
+        // 0), ChQuaternion<>(1, 0, 0, 0));
         scene_document.Write();
         return 0;
     }
@@ -47,8 +62,26 @@ int main(int argc, char* argv[]) {
     ChVector<> pos, vel, scale;
     ChQuaternion<> rot;
 
-    // int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-    // data_document.AddShape("base", scale, pos, rot);
+    int type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+
+    type = ProcessPovrayLine(data_stream, pos, vel, scale, rot);
+    data_document.AddShape("cylinder", scale, pos, rot);
+
+    std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256"), xml_option("integer", "scramble", argv[1])};
+    Vector offset = Vector(0, 0, 0);
+    Vector camera_pos = pos + offset;
+    camera_pos.z -= 40;
+    camera_pos.y = 8;
+    camera_pos.x -= 30;
+
+    pos.z -= 15;
+    pos.y = 8;
+    pos.x -= 4;
+
+    std::vector<std::tuple<int, int, std::string> > labels;
+    data_document.AddSensor(camera_pos, pos, Vector(0, 1, 0), labels, "sobol", sampler_options);
+
     std::vector<ChVector<> > pos_vector;
     std::vector<ChVector<> > vel_vector;
     std::vector<ChVector<> > scale_vector;
