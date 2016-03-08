@@ -71,12 +71,12 @@ int main(int argc, char* argv[]) {
     std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256"), xml_option("integer", "scramble", argv[1])};
     Vector offset = Vector(0, 0, 0);
     Vector camera_pos = pos + offset;
-    camera_pos.z -= 40;
-    camera_pos.y = 8;
-    camera_pos.x -= 30;
+    camera_pos.z -= 10;
+    camera_pos.y = 1;
+    camera_pos.x -= 20;
 
-    pos.z -= 15;
-    pos.y = 8;
+    pos.z -= 5;
+    pos.y = 1;
     pos.x -= 4;
 
     std::vector<std::tuple<int, int, std::string> > labels;
