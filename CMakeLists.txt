@@ -34,6 +34,9 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # Locate Dependencies
 # ------------------------------------------------------------------------------
 
+add_definitions(-DTHRUST_DEVICE_SYSTEM=THRUST_DEVICE_SYSTEM_OMP)
+add_definitions(-DTHRUST_HOST_SYSTEM=THRUST_HOST_SYSTEM_OMP)
+
 find_package(ZLIB)
 find_package(LibXml2)
 find_package(Thrust)
@@ -46,7 +49,9 @@ find_package(Chrono
              CONFIG 
 )
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CHRONO_CXX_FLAGS} -std=c++11")
+IF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${CHRONO_CXX_FLAGS})
+ENDIF()
 
 
 # ------------------------------------------------------------------------------
@@ -84,9 +89,8 @@ ADD_LIBRARY(MitsubaGenerator SHARED
    )
 
 SET_TARGET_PROPERTIES(MitsubaGenerator PROPERTIES
-  COMPILE_FLAGS "${CH_BUILDFLAGS}"
-  LINK_FLAGS "${CH_LINKERFLAG_GPU}"
-  COMPILE_DEFINITIONS "CH_API_COMPILE_UTILS")
+          COMPILE_FLAGS "${CH_BUILDFLAGS}"
+        LINK_FLAGS "${CH_LINKERFLAG_EXE}")
 
  TARGET_LINK_LIBRARIES(MitsubaGenerator ${LIBXML2_LIBRARIES} ${LIBRARIES})
 

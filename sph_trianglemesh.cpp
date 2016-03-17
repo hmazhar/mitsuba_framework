@@ -1,4 +1,3 @@
-#define THRUST_HOST_SYSTEM THRUST_HOST_SYSTEM_OMP
 
 #include <sph_trianglemesh.h>
 
