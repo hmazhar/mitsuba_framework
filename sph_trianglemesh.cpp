@@ -295,12 +295,9 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     printf("Compute DOF [%d] [%d %d %d] [%f] %d\n", grid_size, bins_per_axis.x, bins_per_axis.y, bins_per_axis.z, bin_edge, num_spheres);
 
-    node_num.resize(grid_size);
-    node_loc.resize(grid_size);
     node_mass.resize(grid_size);
-
     std::fill(node_mass.begin(), node_mass.end(), 0);
-#pragma omp parallel for
+    #pragma omp parallel for
     for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
         if (xi.x < min_bounding_point.x || xi.y < min_bounding_point.y || xi.z < min_bounding_point.z) {
@@ -319,7 +316,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
                 for (int k = cz - 2; k <= cz + 2; ++k) {
                     const int current_node = GridHash(i, j, k, bins_per_axis);
                     real3 current_node_location = NodeLocation(i, j, k, bin_edge, min_bounding_point);
-#pragma omp atomic
+                    #pragma omp atomic
                     node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);
                 }
             }
@@ -334,6 +331,8 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     real max_mass = *std::max_element(node_mass.begin(), node_mass.end());
 
     printf("Max: %f %f %f\n", max_mass, mean, stdev);
+    node_num.resize(grid_size);
+    node_loc.resize(grid_size);
 
 #pragma omp parallel for
     for (uint nod = 0; nod < grid_size; nod++) {
