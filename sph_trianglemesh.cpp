@@ -398,7 +398,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 }
 
 void WriteMeshToFile(std::string filename, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals, std::vector<uint>& meshIndices) {
-    printf("Writing: %s\n", filename);
+    printf("Writing: %s\n", filename.c_str());
     std::ofstream ofile(filename);
 
     for (uint i = 0; i < meshVertices.size(); i++) {
