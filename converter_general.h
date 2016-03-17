@@ -43,7 +43,7 @@ void OpenBinary(std::string filename, std::ifstream& bin_file) {
     if (bin_file.is_open()) {
         printf("File successfully open\n");
     } else {
-        printf("Error opening %s\n", filename);
+        printf("Error opening %s\n", filename.c_str());
     }
 }
 
