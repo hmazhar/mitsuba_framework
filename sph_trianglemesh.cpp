@@ -296,7 +296,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     node_mass.resize(grid_size);
     std::fill(node_mass.begin(), node_mass.end(), 0);
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
         if (xi.x < min_bounding_point.x || xi.y < min_bounding_point.y || xi.z < min_bounding_point.z) {
@@ -315,7 +315,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
                 for (int k = cz - 2; k <= cz + 2; ++k) {
                     const int current_node = GridHash(i, j, k, bins_per_axis);
                     real3 current_node_location = NodeLocation(i, j, k, bin_edge, min_bounding_point);
-                    #pragma omp atomic
+                    //#pragma omp atomic
                     node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);
                 }
             }
