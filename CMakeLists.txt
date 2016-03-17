@@ -45,9 +45,9 @@ find_package(Chrono
 			 COMPONENTS PARALLEL 
              CONFIG 
 )
-IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CHRONO_CXX_FLAGS} -std=c++11 -fpermissive")
-ENDIF()
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CHRONO_CXX_FLAGS} -std=c++11")
+
 
 # ------------------------------------------------------------------------------
 # LIST THE FILES in the MitsubaGenerator LIBRARY
