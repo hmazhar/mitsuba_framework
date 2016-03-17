@@ -1,3 +1,4 @@
+#define THRUST_HOST_SYSTEM THRUST_HOST_SYSTEM_OMP
 
 #include <sph_trianglemesh.h>
 
@@ -151,6 +152,7 @@ uint Polygonise(GRIDCELL& Grid, std::vector<chrono::vec3>& Triangles, uint& NewV
     }
 
     TriangleCount = 0;
+
     for (uint i = 0; triTable[CubeIndex][i] != -1; i += 3) {
         Triangles[TriangleCount] =
             chrono::vec3(LocalRemap[triTable[CubeIndex][i + 0]], LocalRemap[triTable[CubeIndex][i + 1]], LocalRemap[triTable[CubeIndex][i + 2]]);
@@ -161,8 +163,11 @@ uint Polygonise(GRIDCELL& Grid, std::vector<chrono::vec3>& Triangles, uint& NewV
 }
 
 void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals) {
+    printf("Welding\n");
     meshIndices.resize(meshVertices.size());
     meshNormals.resize(meshVertices.size());
+
+#pragma omp parallel for
     for (uint i = 0; i < meshVertices.size(); i++) {
         meshVertices[i].x = Round(meshVertices[i].x / round_to_nearest) * round_to_nearest;
         meshVertices[i].y = Round(meshVertices[i].y / round_to_nearest) * round_to_nearest;
@@ -173,17 +178,19 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
     vertices.erase(thrust::unique(vertices.begin(), vertices.end()), vertices.end());
     thrust::lower_bound(vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin());
     meshNormals.resize(vertices.size());
+
+#pragma omp parallel for
     for (uint i = 0; i < vertices.size(); i++) {
         meshNormals[i] = GetNormal(vertices[i]);
     }
     uint start_triangles = meshIndices.size() / 3;
     std::vector<chrono::uvec3> triangles(meshIndices.size() / 3);
-
+#pragma omp parallel for
     for (uint i = 0; i < triangles.size(); i++) {
         triangles[i].x = meshIndices[i * 3 + 0];
         triangles[i].y = meshIndices[i * 3 + 1];
         triangles[i].z = meshIndices[i * 3 + 2];
-        //triangles[i]=Sort(triangles[i]);
+        // triangles[i]=Sort(triangles[i]);
     }
 
     thrust::sort(triangles.begin(), triangles.end());
@@ -191,6 +198,7 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
     uint num_triangles = thrust::unique(triangles.begin(), triangles.end()) - triangles.begin();
     meshIndices.resize(num_triangles * 3);
 
+#pragma omp parallel for
     for (uint i = 0; i < num_triangles; i++) {
         meshIndices[i * 3 + 0] = triangles[i].x + 1;
         meshIndices[i * 3 + 1] = triangles[i].y + 1;
@@ -390,6 +398,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 }
 
 void WriteMeshToFile(std::string filename, std::vector<real3>& meshVertices, std::vector<real3>& meshNormals, std::vector<uint>& meshIndices) {
+    printf("Writing: %s\n", filename);
     std::ofstream ofile(filename);
 
     for (uint i = 0; i < meshVertices.size(); i++) {
