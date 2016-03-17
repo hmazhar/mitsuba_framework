@@ -300,7 +300,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     node_mass.resize(grid_size);
 
     std::fill(node_mass.begin(), node_mass.end(), 0);
-
+#pragma omp parallel for
     for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
         if (xi.x < min_bounding_point.x || xi.y < min_bounding_point.y || xi.z < min_bounding_point.z) {
@@ -310,10 +310,20 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             continue;
         }
 
-        LOOPOVERNODES(                                                               //
-            node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);  //
-            node_num[current_node] = chrono::vec3(cx, cy, cz);                       //
-            node_loc[current_node] = current_node_location;)
+        const int cx = GridCoord(xi.x, inv_bin_edge, min_bounding_point.x);
+        const int cy = GridCoord(xi.y, inv_bin_edge, min_bounding_point.y);
+        const int cz = GridCoord(xi.z, inv_bin_edge, min_bounding_point.z);
+
+        for (int i = cx - 2; i <= cx + 2; ++i) {
+            for (int j = cy - 2; j <= cy + 2; ++j) {
+                for (int k = cz - 2; k <= cz + 2; ++k) {
+                    const int current_node = GridHash(i, j, k, bins_per_axis);
+                    real3 current_node_location = NodeLocation(i, j, k, bin_edge, min_bounding_point);
+#pragma omp atomic
+                    node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);
+                }
+            }
+        }
     }
 
     real sum = std::accumulate(node_mass.begin(), node_mass.end(), 0.0);
@@ -324,7 +334,12 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     real max_mass = *std::max_element(node_mass.begin(), node_mass.end());
 
     printf("Max: %f %f %f\n", max_mass, mean, stdev);
+
+#pragma omp parallel for
     for (uint nod = 0; nod < grid_size; nod++) {
+        vec3 node_n = GridDecode(nod, bins_per_axis);
+        node_num[nod] = node_n;
+        node_loc[nod] = NodeLocation(node_n.x, node_n.y, node_n.z, bin_edge, min_bounding_point);
         node_mass[nod] = node_mass[nod] - (mean + stdev * .5);
     }
 
