@@ -371,14 +371,23 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             g.p[6] = real3(px + bin_edge, py + bin_edge, pz + bin_edge);
             g.p[7] = real3(px, py + bin_edge, pz + bin_edge);
 
-            g.val[0] = node_mass[GetDensity(g.p[0])];
-            g.val[1] = node_mass[GetDensity(g.p[1])];
-            g.val[2] = node_mass[GetDensity(g.p[2])];
-            g.val[3] = node_mass[GetDensity(g.p[3])];
-            g.val[4] = node_mass[GetDensity(g.p[4])];
-            g.val[5] = node_mass[GetDensity(g.p[5])];
-            g.val[6] = node_mass[GetDensity(g.p[6])];
-            g.val[7] = node_mass[GetDensity(g.p[7])];
+            int g0 = GetDensity(g.p[0]);
+            int g1 = GetDensity(g.p[1]);
+            int g2 = GetDensity(g.p[2]);
+            int g3 = GetDensity(g.p[3]);
+            int g4 = GetDensity(g.p[4]);
+            int g5 = GetDensity(g.p[5]);
+            int g6 = GetDensity(g.p[6]);
+            int g7 = GetDensity(g.p[7]);
+
+            g.val[0] = node_mass[g0];
+            g.val[1] = node_mass[g1];
+            g.val[2] = node_mass[g2];
+            g.val[3] = node_mass[g3];
+            g.val[4] = node_mass[g4];
+            g.val[5] = node_mass[g5];
+            g.val[6] = node_mass[g6];
+            g.val[7] = node_mass[g7];
 
             uint triangles = Polygonise(g, _FaceStorage, NewVertexCount, _VertexStorage);
 
