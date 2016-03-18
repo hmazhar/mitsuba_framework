@@ -271,8 +271,8 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     max_bounding_point.y = Min(abs_max.y, res.second.y);
     max_bounding_point.z = Min(abs_max.z, res.second.z);
 
-    max_bounding_point = max_bounding_point + kernel_radius * 8;
-    min_bounding_point = min_bounding_point - kernel_radius * 6;
+    max_bounding_point = max_bounding_point + kernel_radius * 12;
+    min_bounding_point = min_bounding_point - kernel_radius * 12;
 
     diag = max_bounding_point - min_bounding_point;
     bin_edge = kernel_radius;
