@@ -296,24 +296,21 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     //#pragma omp parallel for
     for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
-        if (xi.x < min_bounding_point.x || xi.y < min_bounding_point.y || xi.z < min_bounding_point.z) {
-            continue;
-        }
-        if (xi.x > max_bounding_point.x || xi.y > max_bounding_point.y || xi.z > max_bounding_point.z) {
-            continue;
-        }
+        if (xi.x > min_bounding_point.x && xi.y > min_bounding_point.y && xi.z > min_bounding_point.z) {
+            if (xi.x < max_bounding_point.x && xi.y < max_bounding_point.y && xi.z < max_bounding_point.z) {
+                const int cx = GridCoord(xi.x, inv_bin_edge, min_bounding_point.x);
+                const int cy = GridCoord(xi.y, inv_bin_edge, min_bounding_point.y);
+                const int cz = GridCoord(xi.z, inv_bin_edge, min_bounding_point.z);
 
-        const int cx = GridCoord(xi.x, inv_bin_edge, min_bounding_point.x);
-        const int cy = GridCoord(xi.y, inv_bin_edge, min_bounding_point.y);
-        const int cz = GridCoord(xi.z, inv_bin_edge, min_bounding_point.z);
-
-        for (int i = cx - 2; i <= cx + 2; ++i) {
-            for (int j = cy - 2; j <= cy + 2; ++j) {
-                for (int k = cz - 2; k <= cz + 2; ++k) {
-                    const int current_node = GridHash(i, j, k, bins_per_axis);
-                    real3 current_node_location = NodeLocation(i, j, k, bin_edge, min_bounding_point);
-                    //#pragma omp atomic
-                    node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);
+                for (int i = cx - 2; i <= cx + 2; ++i) {
+                    for (int j = cy - 2; j <= cy + 2; ++j) {
+                        for (int k = cz - 2; k <= cz + 2; ++k) {
+                            const int current_node = GridHash(i, j, k, bins_per_axis);
+                            real3 current_node_location = NodeLocation(i, j, k, bin_edge, min_bounding_point);
+                            //#pragma omp atomic
+                            node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);
+                        }
+                    }
                 }
             }
         }
