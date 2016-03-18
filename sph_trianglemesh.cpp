@@ -263,16 +263,16 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     bbox_reduction binary_op;
     res = thrust::transform_reduce(pos_marker.begin(), pos_marker.end(), unary_op, res, binary_op);
 
-    min_bounding_point.x = Max(abs_min.x, res.first.x);
-    min_bounding_point.y = Max(abs_min.y, res.first.y);
-    min_bounding_point.z = Max(abs_min.z, res.first.z);
+    min_bounding_point.x = std::max(abs_min.x, res.first.x);
+    min_bounding_point.y = std::max(abs_min.y, res.first.y);
+    min_bounding_point.z = std::max(abs_min.z, res.first.z);
 
-    max_bounding_point.x = Min(abs_max.x, res.second.x);
-    max_bounding_point.y = Min(abs_max.y, res.second.y);
-    max_bounding_point.z = Min(abs_max.z, res.second.z);
+    max_bounding_point.x = std::min(abs_max.x, res.second.x);
+    max_bounding_point.y = std::min(abs_max.y, res.second.y);
+    max_bounding_point.z = std::min(abs_max.z, res.second.z);
 
-    max_bounding_point = max_bounding_point + kernel_radius * 12;
-    min_bounding_point = min_bounding_point - kernel_radius * 12;
+    max_bounding_point = max_bounding_point + kernel_radius * 8;
+    min_bounding_point = min_bounding_point - kernel_radius * 6;
 
     diag = max_bounding_point - min_bounding_point;
     bin_edge = kernel_radius;
@@ -280,6 +280,9 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     inv_bin_edge = real(1.) / bin_edge;
     grid_size = bins_per_axis.x * bins_per_axis.y * bins_per_axis.z;
     uint num_spheres = pos_marker.size();
+
+    printf("abs_max [%f %f %f]\n", abs_max.x, abs_max.y, abs_max.z);
+    printf("abs_min [%f %f %f]\n", abs_min.x, abs_min.y, abs_min.z);
 
     printf("max_bounding_point [%f %f %f]\n", max_bounding_point.x, max_bounding_point.y, max_bounding_point.z);
     printf("min_bounding_point [%f %f %f]\n", min_bounding_point.x, min_bounding_point.y, min_bounding_point.z);
@@ -293,11 +296,12 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     node_mass.resize(grid_size);
     std::fill(node_mass.begin(), node_mass.end(), 0);
-    //#pragma omp parallel for
+
+#pragma omp parallel for
     for (uint p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
-        if (xi.x > min_bounding_point.x && xi.y > min_bounding_point.y && xi.z > min_bounding_point.z) {
-            if (xi.x < max_bounding_point.x && xi.y < max_bounding_point.y && xi.z < max_bounding_point.z) {
+        if (xi.x > abs_min.x && xi.y > abs_min.y && xi.z > abs_min.z) {
+            if (xi.x < abs_max.x && xi.y < abs_max.y && xi.z < abs_max.z) {
                 const int cx = GridCoord(xi.x, inv_bin_edge, min_bounding_point.x);
                 const int cy = GridCoord(xi.y, inv_bin_edge, min_bounding_point.y);
                 const int cz = GridCoord(xi.z, inv_bin_edge, min_bounding_point.z);
@@ -307,7 +311,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
                         for (int k = cz - 2; k <= cz + 2; ++k) {
                             const int current_node = GridHash(i, j, k, bins_per_axis);
                             real3 current_node_location = NodeLocation(i, j, k, bin_edge, min_bounding_point);
-                            //#pragma omp atomic
+#pragma omp atomic
                             node_mass[current_node] += N(xi - current_node_location, inv_bin_edge);
                         }
                     }
@@ -338,7 +342,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     uint NewVertexCount;
 
     for (uint nod = 0; nod < grid_size; nod++) {
-        // if (node_mass[nod] != -(mean + stdev * .1))
+        // if (node_mass[nod] != -(mean + stdev * .5))
         {
             chrono::vec3 node_index = node_num[nod];
             real3 node_location = node_loc[nod];
@@ -355,8 +359,6 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             uint mynum = bins_per_axis.y;
             uint mznum = bins_per_axis.z;
 
-            real3 vertlist[12];
-            long edgelist[12];
             GRIDCELL g;
 
             g.p[0] = real3(px, py, pz);
@@ -376,6 +378,31 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
             int g5 = GetDensity(g.p[5]);
             int g6 = GetDensity(g.p[6]);
             int g7 = GetDensity(g.p[7]);
+
+            if (g0 >= grid_size || g0 < 0) {
+                continue;
+            }
+            if (g1 >= grid_size || g1 < 0) {
+                continue;
+            }
+            if (g2 >= grid_size || g2 < 0) {
+                continue;
+            }
+            if (g3 >= grid_size || g3 < 0) {
+                continue;
+            }
+            if (g4 >= grid_size || g4 < 0) {
+                continue;
+            }
+            if (g5 >= grid_size || g5 < 0) {
+                continue;
+            }
+            if (g6 >= grid_size || g6 < 0) {
+                continue;
+            }
+            if (g7 >= grid_size || g7 < 0) {
+                continue;
+            }
 
             g.val[0] = node_mass[g0];
             g.val[1] = node_mass[g1];
