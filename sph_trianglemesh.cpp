@@ -263,19 +263,16 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     bbox_reduction binary_op;
     res = thrust::transform_reduce(pos_marker.begin(), pos_marker.end(), unary_op, res, binary_op);
 
-    max_bounding_point = real3((Ceil(res.second.x), (res.second.x + kernel_radius * 12)), (Ceil(res.second.y), (res.second.y + kernel_radius * 12)),
-                               (Ceil(res.second.z), (res.second.z + kernel_radius * 12)));
+    min_bounding_point.x = Max(abs_min.x, res.first.x);
+    min_bounding_point.y = Max(abs_min.y, res.first.y);
+    min_bounding_point.z = Max(abs_min.z, res.first.z);
 
-    min_bounding_point = real3((Floor(res.first.x), (res.first.x - kernel_radius * 12)), (Floor(res.first.y), (res.first.y - kernel_radius * 12)),
-                               (Floor(res.first.z), (res.first.z - kernel_radius * 12)));
+    max_bounding_point.x = Min(abs_max.x, res.second.x);
+    max_bounding_point.y = Min(abs_max.y, res.second.y);
+    max_bounding_point.z = Min(abs_max.z, res.second.z);
 
-    min_bounding_point.x = Max(abs_min.x, min_bounding_point.x);
-    min_bounding_point.y = Max(abs_min.y, min_bounding_point.y);
-    min_bounding_point.z = Max(abs_min.z, min_bounding_point.z);
-
-    max_bounding_point.x = Min(abs_max.x, max_bounding_point.x);
-    max_bounding_point.y = Min(abs_max.y, max_bounding_point.y);
-    max_bounding_point.z = Min(abs_max.z, max_bounding_point.z);
+    max_bounding_point = max_bounding_point + kernel_radius * 8;
+    min_bounding_point = min_bounding_point - kernel_radius * 6;
 
     diag = max_bounding_point - min_bounding_point;
     bin_edge = kernel_radius;
