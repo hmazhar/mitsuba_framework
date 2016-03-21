@@ -78,11 +78,11 @@ int main(int argc, char* argv[]) {
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
 
-//    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-//    data_document.AddShape("box", scale, pos, rot);
+    //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    //    data_document.AddShape("box", scale, pos, rot);
     SkipLine(vehicle_stream, 1);
-//    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-//    data_document.AddShape("box", scale, pos, rot);
+    //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    //    data_document.AddShape("box", scale, pos, rot);
     SkipLine(vehicle_stream, 1);
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
@@ -90,30 +90,13 @@ int main(int argc, char* argv[]) {
 #else
     SkipLine(vehicle_stream, 6);
 #endif
+    while (vehicle_stream.fail() == false) {
+        int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+        if (vehicle_stream.fail() == false) {
+            data_document.AddShape("bucky", scale, pos, rot);
+        }
+    }
 
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("bucky", scale, pos, rot);
     data_document.Write();
     return 0;
 }
