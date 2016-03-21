@@ -327,7 +327,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
 
     real max_mass = *std::max_element(node_mass.begin(), node_mass.end());
 
-    printf("Max: %f %f %f\n", max_mass, mean, stdev);
+    printf("Max: %f %f %f %f\n", max_mass, mean, stdev, ((mean + stdev) * .25));
     node_num.resize(grid_size);
     node_loc.resize(grid_size);
 
@@ -336,7 +336,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
         vec3 node_n = GridDecode(nod, bins_per_axis);
         node_num[nod] = node_n;
         node_loc[nod] = NodeLocation(node_n.x, node_n.y, node_n.z, bin_edge, min_bounding_point);
-        node_mass[nod] = node_mass[nod] - (mean + stdev * .5);
+        node_mass[nod] = node_mass[nod] - ((mean + stdev) * .25);
     }
 
     uint NewVertexCount;
