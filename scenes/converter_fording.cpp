@@ -164,12 +164,29 @@ int main(int argc, char* argv[]) {
         output_mesh_ss << argv[1] << ".obj";
     }
 
-    bool color_velocity = true;
+    int color_mode = true;
     bool follow_camera = true;
 
     if (argc >= 5) {
-        color_velocity = atoi(argv[3]);
+        color_mode = atoi(argv[3]);
         follow_camera = atoi(argv[4]);
+    }
+    std::vector<chrono::real3> old_position(0);
+    real max_disp = 0;
+
+    if (color_mode == 2) {
+        std::vector<double> lengths(position.size());
+        std::ifstream ifile;
+        std::cout << "Open Color Binary\n";
+        OpenBinary("data_10.dat", ifile);
+        ReadBinary(ifile, old_position);
+        CloseBinary(ifile);
+
+        for (int i = 0; i < position.size(); i++) {
+            lengths[i] = Length(position[i] - old_position[i]);
+        }
+        std::sort(lengths.begin(), lengths.end());
+        max_disp = lengths[velocity.size() - velocity.size() * .1];
     }
 
     MitsubaGenerator data_document(output_file_ss.str());
@@ -212,24 +229,30 @@ int main(int argc, char* argv[]) {
         kernel_radius = .016 * 2 * 0.9;
     }
 
-    if (color_velocity || argc >= 6) {
+    if (color_mode>0 || argc >= 6) {
         for (int i = 0; i < position.size(); i++) {
             pos.x = position[i].x;
             pos.y = position[i].y;
             pos.z = position[i].z;
-            vel.x = velocity[i].x;
-            vel.y = velocity[i].y;
-            vel.z = velocity[i].z;
-            double v = vel.Length() / max_vel;
-            if (color_velocity) {
+
+            if (color_mode == 1) {
+                vel.x = velocity[i].x;
+                vel.y = velocity[i].y;
+                vel.z = velocity[i].z;
+
+                double v = vel.Length() / max_vel;
                 data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+            } else if (color_mode == 2) {
+                double v = Length(position[i] - old_position[i]) / max_disp;
+                data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+
             } else {
                 data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
             }
             count++;
         }
     }
-    //Always output if fluid sim (because geometry file has it...)
+    // Always output if fluid sim (because geometry file has it...)
     if (argc < 6) {
         MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-13, -3, -3), real3(13, 3, 9), 0.000001);
         data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
