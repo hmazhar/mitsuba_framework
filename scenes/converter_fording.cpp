@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
         std::vector<double> lengths(position.size());
         std::ifstream ifile;
         std::cout << "Open Color Binary\n";
-        OpenBinary("data_10.dat", ifile);
+        OpenBinary("data_120.dat", ifile);
         ReadBinary(ifile, old_position);
         CloseBinary(ifile);
 
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
             lengths[i] = Length(position[i] - old_position[i]);
         }
         std::sort(lengths.begin(), lengths.end());
-        max_disp = lengths[velocity.size() - velocity.size() * .1];
+        max_disp = lengths[velocity.size() - velocity.size() * .01];
     }
 
     MitsubaGenerator data_document(output_file_ss.str());
