@@ -113,7 +113,6 @@ int main(int argc, char* argv[]) {
         scene_document.AddIntegrator("volpath", integrator_options);
         scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
 
-        scene_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
         scene_document.AddInclude("$frame.xml");
         //
         //        scene_document.camera_origin = ChVector<>(0, -7.4, 3);
@@ -165,7 +164,7 @@ int main(int argc, char* argv[]) {
     }
 
     int color_mode = true;
-    bool follow_camera = true;
+    int follow_camera = true;
 
     if (argc >= 5) {
         color_mode = atoi(argv[3]);
@@ -229,7 +228,7 @@ int main(int argc, char* argv[]) {
         kernel_radius = .016 * 2 * 0.9;
     }
 
-    if (color_mode>0 || argc >= 6) {
+    if (color_mode > 0 || argc >= 6) {
         for (int i = 0; i < position.size(); i++) {
             pos.x = position[i].x;
             pos.y = position[i].y;
@@ -284,16 +283,31 @@ int main(int argc, char* argv[]) {
     Vector offset = Vector(0, 0, 0);  // rot.Rotate(Vector(-0.055765, 0, -0.52349));
     data_document.AddShape("chassis", Vector(1, 1, 1), pos + offset, rot);
     std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256"), xml_option("integer", "scramble", argv[1])};
-    if (follow_camera) {
+    if (follow_camera == 1) {
         Vector camera_pos = pos + offset;
         camera_pos.z = 4;
         camera_pos.y -= 8;
         camera_pos.x += 0;
-
+        data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
         data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
+
+    } else if (follow_camera == 2) {
+        Vector camera_pos = pos + offset;
+        camera_pos.z = 4;
+        camera_pos.y = 8;
+        camera_pos.x += 0;
+        data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, -2.1366, 0), Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X));
+        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
+
+    } else if (follow_camera == 3) {
+        data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, -2.1366, 0), Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X));
+        Vector camera_pos = ChVector<>(0, 7.4, 3);
+        Vector camera_target = ChVector<>(0, 6.4, 2.84);
+        data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     } else {
         Vector camera_pos = ChVector<>(0, -7.4, 3);
         Vector camera_target = ChVector<>(0, -6.4, 2.84);
+        data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     }
 
