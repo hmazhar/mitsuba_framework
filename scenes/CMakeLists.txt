@@ -23,7 +23,8 @@ SET(CONVERTERS
     converter_shaker
     converter_sls
     converter_aor
-    converter_fluid_rigid_test
+    converter_fluid_test
+    converter_rigid_test
 )
 
 
