@@ -17,13 +17,17 @@ using namespace chrono;
 int main(int argc, char* argv[]) {
     std::ifstream ifile;
     // std::cout << "OpenBinary\n";
+    std::vector<chrono::real> density;
+    std::vector<chrono::real> pressure;
+    std::vector<chrono::real3> force;
+    std::vector<chrono::real3> position;
+    std::vector<real3> velocity;
+    std::vector<chrono::real> force_length;
+    std::vector<chrono::real> marker_height;
+
     for (int file_num = 0; file_num < 588; file_num++) {
         OpenBinary("fluid_" + std::to_string(file_num) + ".dat", ifile);
-        std::vector<chrono::real> density;
-        std::vector<chrono::real> pressure;
-        std::vector<chrono::real3> force;
-        std::vector<chrono::real3> position;
-        std::vector<real3> velocity;
+
         // std::cout << "ReadBinary\n";
         ReadBinary(ifile, density);
         ReadBinary(ifile, pressure);
@@ -35,8 +39,8 @@ int main(int argc, char* argv[]) {
         //                  << "\n";
         CloseBinary(ifile);
 
-        std::vector<chrono::real> force_length(force.size());
-        std::vector<chrono::real> marker_height(position.size());
+        force_length.resize(force.size());
+        marker_height.resize(position.size());
 
         real avg_density = 0;
         real avg_pressure = 0;
@@ -61,10 +65,6 @@ int main(int argc, char* argv[]) {
             }
             ofile.close();
         }
-
-        // Round data to nearest nth value
-        // Unique the values
-        // write values
 
         printf("Density, Pressure: %f %f %f \n", avg_density, avg_pressure, KE);
     }
