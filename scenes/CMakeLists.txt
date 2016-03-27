@@ -9,7 +9,6 @@
 # ------------------------------------------------------------------------------
 
 SET(CONVERTERS 
-	converter_fording_triangle
     converter_fording
     converter_ces
     converter_cloth
