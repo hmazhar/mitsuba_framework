@@ -9,6 +9,7 @@
 # ------------------------------------------------------------------------------
 
 SET(CONVERTERS 
+	converter_fording_triangle
     converter_fording
     converter_ces
     converter_cloth
@@ -22,6 +23,8 @@ SET(CONVERTERS
     converter_drive
     converter_shaker
     converter_sls
+    converter_aor
+    converter_fluid_rigid_test
 )
 
 
