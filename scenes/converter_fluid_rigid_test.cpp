@@ -20,17 +20,16 @@ int main(int argc, char* argv[]) {
         ReadBinary(ifile, force);
         ReadBinary(ifile, position);
         ReadBinary(ifile, velocity);
-        std::cout << "CloseBinary "<<density.size()<<" "<<pressure.size()<<" "<<force.size()<<" "<<position.size()<<" "<<velocity.size() <<"\n";
+        std::cout << "CloseBinary " << density.size() << " " << pressure.size() << " " << force.size() << " " << position.size() << " " << velocity.size()
+                  << "\n";
         CloseBinary(ifile);
-
-
 
         std::sort(density.begin(), density.end());
         std::sort(pressure.begin(), pressure.end());
 
         std::vector<chrono::real> force_length(force.size());
 
-        for (int i = 0; force.size(); i++) {
+        for (int i = 0; i < force.size(); i++) {
             force_length[i] = Length(force[i]);
         }
 
@@ -39,7 +38,7 @@ int main(int argc, char* argv[]) {
         real avg_density = 0;
         real avg_pressure = 0;
 
-        for (int i = 0; density.size(); i++) {
+        for (int i = 0; i < density.size(); i++) {
             avg_density += density[i];
             avg_pressure += pressure[i];
         }
