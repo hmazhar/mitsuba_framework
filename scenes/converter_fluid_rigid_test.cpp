@@ -20,8 +20,10 @@ int main(int argc, char* argv[]) {
         ReadBinary(ifile, force);
         ReadBinary(ifile, position);
         ReadBinary(ifile, velocity);
-        std::cout << "CloseBinary\n";
+        std::cout << "CloseBinary "<<density.size()<<" "<<pressure.size()<<" "<<force.size()<<" "<<position.size()<<" "<<velocity.size() <<"\n";
         CloseBinary(ifile);
+
+
 
         std::sort(density.begin(), density.end());
         std::sort(pressure.begin(), pressure.end());
