@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
         std::sort(pressure.begin(), pressure.end());
 
         std::vector<chrono::real> force_length(force.size());
+        std::vector<chrono::real> marker_height(position.size());
 
         for (int i = 0; i < force.size(); i++) {
             force_length[i] = Length(force[i]);
@@ -48,18 +49,15 @@ int main(int argc, char* argv[]) {
 
         real avg_density = 0;
         real avg_pressure = 0;
-
+        real KE = 0;
         for (int i = 0; i < density.size(); i++) {
             avg_density += density[i];
             avg_pressure += pressure[i];
+            marker_height[i] = position[i].z;
+            KE += .5 * 0.0200658 * Pow(Length(velocity[i]),2);
         }
         avg_density = avg_density / density.size();
         avg_pressure = avg_pressure / pressure.size();
-
-        std::vector<chrono::real> marker_height(position.size());
-        for (int i = 0; i < position.size(); i++) {
-            marker_height[i] = position[i].z;
-        }
 
         thrust::sort_by_key(marker_height.begin(), marker_height.end(),
                             thrust::make_zip_iterator(thrust::make_tuple(force_length.begin(), density.begin(), pressure.begin())));
@@ -76,7 +74,7 @@ int main(int argc, char* argv[]) {
         // Unique the values
         // write values
 
-        printf("Density, Pressure: [%f %f] \n", avg_density, avg_pressure);
+        printf("Density, Pressure: %f %f %f \n", avg_density, avg_pressure, KE);
     }
 
     return 0;

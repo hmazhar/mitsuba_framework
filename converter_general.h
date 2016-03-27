@@ -41,7 +41,7 @@ void ReadCompressed(std::string filename, std::string& data) {
 void OpenBinary(std::string filename, std::ifstream& bin_file) {
     bin_file.open(filename.c_str(), std::ios::in | std::ofstream::binary);
     if (bin_file.is_open()) {
-        printf("File successfully open\n");
+        //printf("File successfully open\n");
     } else {
         printf("Error opening %s\n", filename.c_str());
     }
