@@ -10,7 +10,6 @@
 #include <thrust/binary_search.h>
 #include <thrust/sort.h>
 #include <chrono_parallel/collision/ChBroadphaseUtils.h>
-#include <chrono_parallel/physics/MPMUtils.h>
 using namespace chrono;
 using namespace chrono::collision;
 
@@ -33,6 +32,45 @@ std::vector<real> node_mass;
 
 std::vector<real3> _VertexStorage(15);
 std::vector<chrono::vec3> _FaceStorage(10);
+
+real N(const real x) {
+    if (Abs(x) < real(1.0)) {
+        return real(0.5) * Cube(Abs(x)) - Sqr(x) + 2.0 / 3.0;
+    } else if (Abs(x) < real(2.0)) {
+        return -1.0 / 6.0 * Cube(Abs(x)) + Sqr(x) - real(2.0) * Abs(x) + 4.0 / 3.0;
+    }
+    return float(0.0);
+}
+
+real N(const chrono::real3& X, real inv_grid_dx) {
+    return N(X.x * inv_grid_dx) * N(X.y * inv_grid_dx) * N(X.z * inv_grid_dx);
+}
+static inline int GridCoord(real x, real inv_bin_edge, real minimum) {
+    float l = x - minimum;
+    int c = Round(l * inv_bin_edge);
+    return c;
+}
+inline int GridHash(int x, int y, int z, const vec3& bins_per_axis) {
+    return ((z * bins_per_axis.y) * bins_per_axis.x) + (y * bins_per_axis.x) + x;
+}
+inline int GridHash(const int x, const int y, const int z, const int bins_per_axisx, const int bins_per_axisy, const int bins_per_axisz) {
+    return ((z * bins_per_axisy) * bins_per_axisx) + (y * bins_per_axisx) + x;
+}
+inline vec3 GridDecode(int hash, const vec3& bins_per_axis) {
+    vec3 decoded_hash;
+    decoded_hash.x = hash % (bins_per_axis.x * bins_per_axis.y) % bins_per_axis.x;
+    decoded_hash.y = (hash % (bins_per_axis.x * bins_per_axis.y)) / bins_per_axis.x;
+    decoded_hash.z = hash / (bins_per_axis.x * bins_per_axis.y);
+    return decoded_hash;
+}
+
+inline chrono::real3 NodeLocation(int i, int j, int k, real bin_edge, chrono::real3 min_bounding_point) {
+    chrono::real3 node_location;
+    node_location.x = i * bin_edge + min_bounding_point.x;
+    node_location.y = j * bin_edge + min_bounding_point.y;
+    node_location.z = k * bin_edge + min_bounding_point.z;
+    return node_location;
+}
 
 uint GetDensity(real3 xi) {
     return GridHash(GridCoord(xi.x, inv_bin_edge, min_bounding_point.x),  //
