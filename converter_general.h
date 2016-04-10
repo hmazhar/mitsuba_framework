@@ -5,7 +5,7 @@
 #include <zlib.h>
 #include <core/ChMath.h>
 #include <collision/ChCModelBullet.h>
-
+#include <math.h>
 #include "half/half.hpp"
 class half2 {
   public:
@@ -80,6 +80,11 @@ int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono:
     if (ifile.fail() == true) {
         return -2;
     }
+    std::size_t found = temp.find("nan");
+    if (found != std::string::npos) {
+        return -2;
+    }
+
     std::stringstream ss(temp);
     int type;
     rad = chrono::ChVector<>(1, 1, 1);
@@ -87,6 +92,9 @@ int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono:
     ss >> quat.e0 >> quat.e1 >> quat.e2 >> quat.e3;
     ss >> vel.x >> vel.y >> vel.z;
     ss >> type;
+
+    //printf("%s\n", temp.c_str());
+    //printf("[%f %f %f] [%f %f %f %f] [%f %f %f] %d \n", pos.x, pos.y, pos.z, quat.e0, quat.e1, quat.e2, quat.e3, vel.x, vel.y, vel.z, type);
 
     switch (type) {
         case chrono::collision::SPHERE:
