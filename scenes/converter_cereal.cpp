@@ -71,8 +71,8 @@ int main(int argc, char* argv[]) {
                 case chrono::collision::CONE:
                     data_document.AddShape("cone", scale, pos, rot);
                     break;
-                default:
-                	data_document.AddShape("bucky", scale, pos, rot);
+                case (-1):
+                    data_document.AddShape("bucky", scale, pos, rot);
                     break;
             }
         }
