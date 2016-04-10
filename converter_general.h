@@ -41,7 +41,7 @@ void ReadCompressed(std::string filename, std::string& data) {
 void OpenBinary(std::string filename, std::ifstream& bin_file) {
     bin_file.open(filename.c_str(), std::ios::in | std::ofstream::binary);
     if (bin_file.is_open()) {
-        //printf("File successfully open\n");
+        // printf("File successfully open\n");
     } else {
         printf("Error opening %s\n", filename.c_str());
     }
@@ -77,6 +77,9 @@ void ProcessLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono::ChVe
 int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono::ChVector<>& vel, chrono::ChVector<>& rad, chrono::ChQuaternion<>& quat) {
     std::string temp;
     std::getline(ifile, temp);
+    if (ifile.fail() == true) {
+        return -2;
+    }
     std::stringstream ss(temp);
     int type;
     rad = chrono::ChVector<>(1, 1, 1);
@@ -84,6 +87,7 @@ int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono:
     ss >> quat.e0 >> quat.e1 >> quat.e2 >> quat.e3;
     ss >> vel.x >> vel.y >> vel.z;
     ss >> type;
+
     switch (type) {
         case chrono::collision::SPHERE:
             ss >> rad.x;
