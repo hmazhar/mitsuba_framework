@@ -88,7 +88,7 @@ void ReadStats(std::string filename) {
     //    " + std::to_string(output_torque) + "[Nm]";
     std::string line_3 = "wheel torques: [" + std::to_string(wheel_torque_0) + ", " + std::to_string(wheel_torque_1) + ", " + std::to_string(wheel_torque_2) +
                          ", " + std::to_string(wheel_torque_3) + "] [Nm]";
-    std::string line_4 = "throttle: " + std::to_string(throttle / 2.0) + " brake: " + std::to_string(braking);
+    std::string line_4 = "throttle: " + std::to_string(throttle) + " brake: " + std::to_string(braking);
 
     std::string line_5 = "Force on Vehicle [Total, Fluid]: [" + std::to_string(total_force) + ", " + std::to_string(ftotal_force) + "] [N]";
 
@@ -150,7 +150,10 @@ int main(int argc, char* argv[]) {
     std::string data_v;
     std::cout << "ReadCompressed\n";
     ReadCompressed(input_file_vehicle.str(), data_v);
-    std::replace(data_v.begin(), data_v.end(), ',', '\t');
+    //printf("%s\n", data_v.c_str());
+    std::replace(data_v.begin(), data_v.end(), ',', ' ');
+    //printf("%s\n", data_v.c_str());
+
     std::stringstream output_file_ss;
     std::stringstream output_mesh_ss;
     if (argc >= 3) {
@@ -311,18 +314,58 @@ int main(int argc, char* argv[]) {
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     }
 
-    SkipLine(vehicle_stream, 5);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
-    SkipLine(vehicle_stream, 22);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
-    SkipLine(vehicle_stream, 22);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
-    SkipLine(vehicle_stream, 22);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
+    std::string tire_file = "tire_" + std::string(argv[1]) + ".obj";
+    std::ifstream fem_file(tire_file);
+
+
+
+    if (fem_file.good()) {
+        data_document.AddShape("tire", ChVector<>(1), ChVector<>(0), QUNIT);
+
+        while (vehicle_stream.fail() == false) {
+            int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+            if (vehicle_stream.fail() == false) {
+                switch (type) {
+                    case chrono::collision::SPHERE:
+                        data_document.AddShape("sphere", scale, pos, rot);
+                        break;
+                    case chrono::collision::ELLIPSOID:
+                        data_document.AddShape("ellipsoid", scale, pos, rot);
+                        break;
+                    case chrono::collision::BOX:
+                        data_document.AddShape("box", scale, pos, rot);
+                        break;
+                    case chrono::collision::CYLINDER:
+                    	if(scale.x==.223){
+                    		scale.y=.125;
+                    	}
+                        data_document.AddShape("cylinder", scale, pos, rot);
+                        break;
+                    case chrono::collision::CONE:
+                        data_document.AddShape("cone", scale, pos, rot);
+                        break;
+                    case (-1):
+                        break;
+                }
+            }
+        }
+
+    } else {
+    	SkipLine(vehicle_stream, 5);
+        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+        data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
+        SkipLine(vehicle_stream, 22);
+        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+        data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
+        SkipLine(vehicle_stream, 22);
+        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+        data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
+        SkipLine(vehicle_stream, 22);
+        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+        data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
+        //SkipLine(vehicle_stream, 22);
+    }
+    fem_file.close();
 
     data_document.Write();
     return 0;
