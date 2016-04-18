@@ -10,6 +10,7 @@
 
 SET(CONVERTERS 
     converter_fording
+    converter_fording_tank
     converter_ces
     converter_cloth
     converter_foam
