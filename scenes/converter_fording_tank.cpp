@@ -227,9 +227,9 @@ int main(int argc, char* argv[]) {
     real std_dev = sqrt(variance);
     printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
 
-    real kernel_radius = .016*2;
+    real kernel_radius = .016;
     if (argc >= 6) {
-        kernel_radius = .016*2  * 0.9;
+        kernel_radius = .016  * 0.9;
     }
 
     if (color_mode > 0 || argc >= 6) {
@@ -264,7 +264,8 @@ int main(int argc, char* argv[]) {
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 5);  // skip 2 cylinder edges, top, and 3 side plates
+    //SkipLine(vehicle_stream, 5);  // skip 2 cylinder edges, top, and 3 side plates
+    SkipLine(vehicle_stream, 4);  // skip 2 cylinder edges, top, and 3 side plates
     //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
     //    data_document.AddShape("box", scale, pos, rot);
     //    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
