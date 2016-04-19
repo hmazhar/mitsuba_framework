@@ -319,7 +319,7 @@ int main(int argc, char* argv[]) {
     std::string tire_file = "tire_" + std::string(argv[1]) + ".obj";
     std::ifstream fem_file(tire_file);
 
-    SkipLine(vehicle_stream, 17);
+    SkipLine(vehicle_stream, 32);
 
     if (fem_file.good()) {
         data_document.AddShape("tire", ChVector<>(1), ChVector<>(0), QUNIT);
