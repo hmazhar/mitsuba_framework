@@ -19,6 +19,13 @@ ChVector<> chassis_force, wheel_forcev_0, wheel_forcev_1, wheel_forcev_2, wheel_
 ChVector<> fchassis_force, fwheel_forcev_0, fwheel_forcev_1, fwheel_forcev_2, fwheel_forcev_3;
 
 std::vector<std::tuple<int, int, std::string> > labels;
+std::stringstream input_file_ss, input_file_vehicle, input_stats_vehicle;
+
+Vector vehicle_pos;
+MitsubaGenerator data_document;
+std::stringstream vehicle_stream;
+ChVector<> pos, vel, scale;
+ChQuaternion<> rot;
 
 void ReadStats(std::string filename) {
     std::ifstream ifile(filename.c_str());
@@ -99,6 +106,43 @@ void ReadStats(std::string filename) {
     labels.push_back(std::make_tuple(25, 100, line_5));
 }
 
+void ReadVehicleData() {
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);
+    SkipLine(vehicle_stream, 5);                              // skip 2 cylinder edges, top, and 3 side plates
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);  // end platform
+    data_document.AddShape("box", scale, pos, rot);
+    SkipLine(vehicle_stream, 2);  // skip cylinder and end cap
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);  // end platform
+    SkipLine(vehicle_stream, 2);                     // skip cylinder and end cap
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);  // slope
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("box", scale, pos, rot);  // slope
+
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("chassis", Vector(1, 1, 1), pos, rot);
+    vehicle_pos = pos;
+}
+void ReadTireData() {
+    SkipLine(vehicle_stream, 5);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
+    SkipLine(vehicle_stream, 22);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
+    SkipLine(vehicle_stream, 22);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
+    SkipLine(vehicle_stream, 22);
+    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+    data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
+    // SkipLine(vehicle_stream, 22);
+}
+
+void ReadFluidData() {}
+
 int main(int argc, char* argv[]) {
     if (argc == 1) {
         std::cout << "REQURES FRAME NUMBER AS ARGUMENT, ONLY CREATING SCENE" << std::endl;
@@ -112,201 +156,116 @@ int main(int argc, char* argv[]) {
         scene_document.AddInclude("geometry.xml");
         scene_document.AddIntegrator("volpath", integrator_options);
         scene_document.AddEmitter("envmap", emitter_options, ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
-
         scene_document.AddInclude("$frame.xml");
-        //
-        //        scene_document.camera_origin = ChVector<>(0, -7.4, 3);
-        //        scene_document.camera_target = ChVector<>(0, -6.4, 2.84);
-        //        scene_document.camera_up = ChVector<>(0, 0, 1);
-        //        scene_document.scale = 3;
-        //        scene_document.turbidity = 10;
-        //        scene_document.CreateScene();
-        // scene_document.AddShape("background", ChVector<>(1), ChVector<>(0, -10,
-        // 0), ChQuaternion<>(1, 0, 0, 0));
         scene_document.Write();
         return 0;
     }
-    std::stringstream input_file_ss, input_file_vehicle, input_stats_vehicle;
-    input_file_ss << "data_" << argv[1] << ".dat";
-    input_file_vehicle << "vehicle_" << argv[1] << ".dat";
-    input_stats_vehicle << "stats_" << argv[1] << ".dat";
+    // Read all user input
 
-    std::cout << "Opening Files: " << input_file_ss.str() << " " << input_file_vehicle.str() << " " << input_stats_vehicle.str() << "\n";
-    std::cout << "Stats\n";
-    ReadStats(input_stats_vehicle.str());
+    if (argc != 6) {
+        printf("not enough arguments\n");
+        return 0;
+    }
 
-    std::ifstream ifile;
-    std::cout << "OpenBinary\n";
-    OpenBinary(input_file_ss.str(), ifile);
+    std::string sim_frame = std::string(argv[1]);
+    std::string output_folder = std::string(argv[2]);
+    int color_mode = atoi(argv[3]);
+    int follow_camera = atoi(argv[4]);
+    bool is_rigid_fluid = atoi(argv[5]);
 
-    std::vector<chrono::real3> position;
-    std::vector<real3> velocity;
-    std::cout << "ReadBinary\n";
-    ReadBinary(ifile, position);
-    ReadBinary(ifile, velocity);
-    std::cout << "CloseBinary\n";
-    CloseBinary(ifile);
-
+    //============================================================================
+    data_document.Open(output_folder + sim_frame + ".xml");
+    //============================================================================
+    //============================================================================
+    // Vehicle and stats data are always there
     std::string data_v;
-    std::cout << "ReadCompressed\n";
-    ReadCompressed(input_file_vehicle.str(), data_v);
-    //printf("%s\n", data_v.c_str());
+    ReadCompressed("vehicle_" + sim_frame + ".dat", data_v);
     std::replace(data_v.begin(), data_v.end(), ',', ' ');
-    //printf("%s\n", data_v.c_str());
+    vehicle_stream << data_v;
+    ReadVehicleData();
+    ReadStats("stats_" + sim_frame + ".dat");
 
-    std::stringstream output_file_ss;
-    std::stringstream output_mesh_ss;
-    if (argc >= 3) {
-        output_file_ss << argv[2] << argv[1] << ".xml";
-        output_mesh_ss << argv[2] << argv[1] << ".obj";
-        std::cout << "Writing Files: " << output_file_ss.str() << " " << output_mesh_ss.str() << "\n";
+    std::ifstream fluid_file;
+    if (OpenBinary("data_" + sim_frame + ".dat", fluid_file)) {
+        std::vector<chrono::real3> position, velocity;
+        ReadBinary(fluid_file, position);
+        ReadBinary(fluid_file, velocity);
+        CloseBinary(fluid_file);
 
-    } else {
-        output_file_ss << argv[1] << ".xml";
-        output_mesh_ss << argv[1] << ".obj";
-    }
+        std::vector<chrono::real3> old_position(0);
+        real max_disp = 0;
 
-    int color_mode = true;
-    int follow_camera = true;
+        if (color_mode == 2) {
+            std::vector<double> lengths(position.size());
+            std::ifstream ifile;
+            std::cout << "Open Color Binary\n";
+            OpenBinary("data_120.dat", ifile);
+            ReadBinary(ifile, old_position);
+            CloseBinary(ifile);
 
-    if (argc >= 5) {
-        color_mode = atoi(argv[3]);
-        follow_camera = atoi(argv[4]);
-    }
-    std::vector<chrono::real3> old_position(0);
-    real max_disp = 0;
+            for (int i = 0; i < position.size(); i++) {
+                lengths[i] = Length(position[i] - old_position[i]);
+            }
+            std::sort(lengths.begin(), lengths.end());
+            max_disp = lengths[velocity.size() - velocity.size() * .01];
+        }
 
-    if (color_mode == 2) {
-        std::vector<double> lengths(position.size());
-        std::ifstream ifile;
-        std::cout << "Open Color Binary\n";
-        OpenBinary("data_120.dat", ifile);
-        ReadBinary(ifile, old_position);
-        CloseBinary(ifile);
-
-        for (int i = 0; i < position.size(); i++) {
-            lengths[i] = Length(position[i] - old_position[i]);
+        std::vector<double> lengths(velocity.size());
+        for (int i = 0; i < velocity.size(); i++) {
+            lengths[i] = ChVector<>(velocity[i].x, velocity[i].y, velocity[i].z).Length();
         }
         std::sort(lengths.begin(), lengths.end());
-        max_disp = lengths[velocity.size() - velocity.size() * .01];
-    }
+        real max_vel = lengths[velocity.size() - velocity.size() * .1];
+        printf("max fluid vel : %f\n", max_vel);
 
-    MitsubaGenerator data_document(output_file_ss.str());
+        real kernel_radius = .016 * 2;
+        if (is_rigid_fluid) {
+            kernel_radius = .016 * 2 * 0.9;
+        }
 
-    std::stringstream vehicle_stream(data_v);
-
-    ChVector<> pos, vel, scale;
-
-    std::vector<double> lengths(velocity.size());
-
-    ChQuaternion<> rot;
-    int count = 0;
-    real max_vel = 0;
-    real avg_vel = 0;
-    for (int i = 0; i < velocity.size(); i++) {
-        vel.x = velocity[i].x;
-        vel.y = velocity[i].y;
-        vel.z = velocity[i].z;
-
-        lengths[i] = vel.Length();
-        avg_vel += vel.Length();
-    }
-    avg_vel /= velocity.size();
-    // std::cout <<avg_vel<<std::endl;
-    std::sort(lengths.begin(), lengths.end());
-    max_vel = lengths[velocity.size() - velocity.size() * .1];
-
-    real variance = 0;
-    for (int i = 0; i < velocity.size(); i++) {
-        variance += (lengths[i] - avg_vel) * (lengths[i] - avg_vel);
-        //        std::cout << lengths[i] << "\n";
-    }
-    variance /= velocity.size();
-
-    real std_dev = sqrt(variance);
-    printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
-
-    real kernel_radius = .016 * 2;
-    if (argc >= 6) {
-        kernel_radius = .016 * 2 * 0.9;
-    }
-
-    if (color_mode > 0 || argc >= 6) {
-        for (int i = 0; i < position.size(); i++) {
-            pos.x = position[i].x;
-            pos.y = position[i].y;
-            pos.z = position[i].z;
-
-            if (color_mode == 1) {
-                vel.x = velocity[i].x;
-                vel.y = velocity[i].y;
-                vel.z = velocity[i].z;
-
-                double v = vel.Length() / max_vel;
-                data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
-            } else if (color_mode == 2) {
-                double v = Length(position[i] - old_position[i]) / max_disp;
-                data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
-
-            } else {
-                data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
+        if (color_mode > 0 || is_rigid_fluid) {
+            for (int i = 0; i < position.size(); i++) {
+                pos = ChVector<>(position[i].x, position[i].y, position[i].z);
+                if (color_mode == 1) {
+                    double v = ChVector<>(velocity[i].x, velocity[i].y, velocity[i].z).Length() / max_vel;
+                    data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+                } else if (color_mode == 2) {
+                    double v = Length(position[i] - old_position[i]) / max_disp;
+                    data_document.AddCompleteShape("sphere", "diffuse", VelToColor(v), kernel_radius, pos, QUNIT);
+                } else {
+                    data_document.AddShape("sphere", kernel_radius, pos, QUNIT);
+                }
             }
-            count++;
+        }
+        if (is_rigid_fluid == 0) {
+            MarchingCubesToMesh(position, kernel_radius, output_folder + sim_frame + ".obj", real3(-13, -3, -3), real3(13, 3, 9), 0.000001);
+            data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
         }
     }
-    // Always output if fluid sim (because geometry file has it...)
-    if (argc < 6) {
-        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-13, -3, -3), real3(13, 3, 9), 0.000001);
-        data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
-    }
-    // std::cout << data_v << std::endl;
 
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 5);  // skip 2 cylinder edges, top, and 3 side plates
-    //    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    //    data_document.AddShape("box", scale, pos, rot);
-    //    ProcessPovrayLine(data_stream, pos, vel, scale, rot);
-    //    data_document.AddShape("box", scale, pos, rot);
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);  // end platform
-    data_document.AddShape("box", scale, pos, rot);
-    SkipLine(vehicle_stream, 2);  // skip cylinder and end cap
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);  // end platform
-    SkipLine(vehicle_stream, 2);                     // skip cylinder and end cap
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);  // slope
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    data_document.AddShape("box", scale, pos, rot);  // slope
-
-    ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-    // chrono::ChQuaternion<> q;
-    // q.Q_from_AngAxis(CH_C_PI, chrono::ChVector<>(1, 0, 0));
-    /// rot = rot * q;
-    Vector offset = Vector(0, 0, 0);  // rot.Rotate(Vector(-0.055765, 0, -0.52349));
-    data_document.AddShape("chassis", Vector(1, 1, 1), pos + offset, rot);
     std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256"), xml_option("integer", "scramble", argv[1])};
     if (follow_camera == 1) {
-        Vector camera_pos = pos + offset;
+        Vector camera_pos = vehicle_pos;
+        // camera_pos.x += 0;
+        camera_pos.y = -8;
         camera_pos.z = 4;
-        camera_pos.y -= 8;
-        camera_pos.x += 0;
         data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
-        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
+        data_document.AddSensor(camera_pos, vehicle_pos, Vector(0, 0, 1), labels, "sobol", sampler_options);
 
     } else if (follow_camera == 2) {
-        Vector camera_pos = pos + offset;
-        camera_pos.z = 4;
+        Vector camera_pos = vehicle_pos;
+        // camera_pos.x += 0;
         camera_pos.y = 8;
-        camera_pos.x += 0;
+        camera_pos.z = 4;
         data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, -2.1366, 0), Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X));
-        data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
+        data_document.AddSensor(camera_pos, vehicle_pos, Vector(0, 0, 1), labels, "sobol", sampler_options);
 
     } else if (follow_camera == 3) {
-        data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, -2.1366, 0), Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X));
         Vector camera_pos = ChVector<>(0, 7.4, 3);
         Vector camera_target = ChVector<>(0, 6.4, 2.84);
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
+        data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, -2.1366, 0), Q_from_AngAxis(-90 * CH_C_DEG_TO_RAD, VECT_X));
+
     } else {
         Vector camera_pos = ChVector<>(0, -7.4, 3);
         Vector camera_target = ChVector<>(0, -6.4, 2.84);
@@ -314,10 +273,7 @@ int main(int argc, char* argv[]) {
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     }
 
-    std::string tire_file = "tire_" + std::string(argv[1]) + ".obj";
-    std::ifstream fem_file(tire_file);
-
-
+    std::ifstream fem_file("tire_" + sim_frame + ".obj");
 
     if (fem_file.good()) {
         data_document.AddShape("tire", ChVector<>(1), ChVector<>(0), QUNIT);
@@ -326,44 +282,21 @@ int main(int argc, char* argv[]) {
             int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
             if (vehicle_stream.fail() == false) {
                 switch (type) {
-                    case chrono::collision::SPHERE:
-                        data_document.AddShape("sphere", scale, pos, rot);
-                        break;
-                    case chrono::collision::ELLIPSOID:
-                        data_document.AddShape("ellipsoid", scale, pos, rot);
-                        break;
-                    case chrono::collision::BOX:
-                        data_document.AddShape("box", scale, pos, rot);
-                        break;
                     case chrono::collision::CYLINDER:
-                    	if(scale.x==.223){
-                    		scale.y=.125;
-                    	}
+                        if (scale.x == .223) {
+                            scale.y = .125;
+                        }
                         data_document.AddShape("cylinder", scale, pos, rot);
                         break;
-                    case chrono::collision::CONE:
-                        data_document.AddShape("cone", scale, pos, rot);
-                        break;
-                    case (-1):
+                    default:
+                        SkipLine(vehicle_stream, 1);
                         break;
                 }
             }
         }
 
     } else {
-    	SkipLine(vehicle_stream, 5);
-        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-        data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
-        SkipLine(vehicle_stream, 22);
-        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-        data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
-        SkipLine(vehicle_stream, 22);
-        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-        data_document.AddShape("lugged_wheel_R", Vector(1, 1, 1), pos, rot);
-        SkipLine(vehicle_stream, 22);
-        ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-        data_document.AddShape("lugged_wheel_R", Vector(1, -1, 1), pos, rot);
-        //SkipLine(vehicle_stream, 22);
+        ReadTireData();
     }
     fem_file.close();
 
