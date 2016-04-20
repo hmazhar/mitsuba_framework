@@ -1,13 +1,7 @@
 #include "MitsubaGenerator.h"
 #include <chrono/collision/ChCModelBullet.h>
-
-MitsubaGenerator::MitsubaGenerator(const std::string& filename) {
-    // create xml header
-    writer = xmlNewTextWriterFilename(filename.c_str(), 0);
-    xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
-
-    xmlTextWriterStartElement(writer, BAD_CAST "scene");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "version", BAD_CAST "0.5.0");
+MitsubaGenerator::MitsubaGenerator() {
+    writer = 0;
 
     width = 1920;
     height = 1080;
@@ -21,7 +15,26 @@ MitsubaGenerator::MitsubaGenerator(const std::string& filename) {
     turbidity = 10;
     albedo = .15;
 }
+MitsubaGenerator::MitsubaGenerator(const std::string& filename) {
+    // create xml header
+    MitsubaGenerator();
+    writer = xmlNewTextWriterFilename(filename.c_str(), 0);
+    xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
 
+    xmlTextWriterStartElement(writer, BAD_CAST "scene");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "version", BAD_CAST "0.5.0");
+}
+void MitsubaGenerator::Open(const std::string& filename) {
+    if (writer == 0) {
+        writer = xmlNewTextWriterFilename(filename.c_str(), 0);
+        xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
+
+        xmlTextWriterStartElement(writer, BAD_CAST "scene");
+        xmlTextWriterWriteAttribute(writer, BAD_CAST "version", BAD_CAST "0.5.0");
+    } else {
+        printf("ERROR: Cannot call Open after using constructor with filename\n");
+    }
+}
 void MitsubaGenerator::CreateNewNode(const std::string& type) {
     xmlTextWriterStartElement(writer, BAD_CAST type.c_str());
 }
@@ -141,6 +154,31 @@ void MitsubaGenerator::CreateScene(bool add_integrator, bool add_sensor, bool ad
         AddEmitter("sky", emitter_options);
     }
     AddInclude("$frame.xml");
+}
+
+void MitsubaGenerator::AddMesh(const std::string& filename,
+                               const std::string& material,
+                               const chrono::ChVector<>& scale,
+                               const chrono::ChVector<>& position,
+                               const chrono::ChQuaternion<>& rotation) {
+    CreateNewNode("shape");  // Create the root integrator node <integrator ...
+    AddAttribute("type", "obj");
+    {
+        CreateNewNode("string");
+        AddAttribute("name", "filename");
+        AddAttribute("value", filename);
+        CloseNode();
+    }
+    {
+        CreateTransform(scale, position, rotation);
+        CloseNode();
+    }
+    {
+        CreateNewNode("ref");
+        AddAttribute("id", material);
+        CloseNode();
+    }
+    CloseNode();
 }
 
 void MitsubaGenerator::AddShape(const std::string& id,

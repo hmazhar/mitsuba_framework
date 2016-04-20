@@ -38,12 +38,14 @@ void ReadCompressed(std::string filename, std::string& data) {
     gzclose(gz_file);
 }
 
-void OpenBinary(std::string filename, std::ifstream& bin_file) {
+bool OpenBinary(std::string filename, std::ifstream& bin_file) {
     bin_file.open(filename.c_str(), std::ios::in | std::ofstream::binary);
     if (bin_file.is_open()) {
         // printf("File successfully open\n");
+        return true;
     } else {
         printf("Error opening %s\n", filename.c_str());
+        return false;
     }
 }
 

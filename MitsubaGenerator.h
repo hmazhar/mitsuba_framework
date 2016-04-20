@@ -19,9 +19,10 @@ struct xml_option {
 
 class MitsubaGenerator {
   public:
+    MitsubaGenerator();
     MitsubaGenerator(const std::string& filename);
     ~MitsubaGenerator() {}
-
+    void Open(const std::string& filename);
     void ExportDriver(const std::string& filename);
     // Function creates a node of a specific type
     void CreateNewNode(const std::string& type);
@@ -54,7 +55,11 @@ class MitsubaGenerator {
     void Write();
     void SetDataFolder(const std::string& folder) { data_folder = folder; }
     void SetRenderFolder(const std::string& folder) { render_folder = folder; }
-
+    void AddMesh(const std::string& filename,
+                 const std::string& material,
+                 const chrono::ChVector<>& scale,
+                 const chrono::ChVector<>& position,
+                 const chrono::ChQuaternion<>& rotation);
     void AddShape(const std::string& id, const chrono::ChVector<>& scale, const chrono::ChVector<>& position, const chrono::ChQuaternion<>& rotation);
     void AddCompleteShape(const std::string& id,
                           const std::string& material_type,
