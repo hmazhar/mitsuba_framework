@@ -95,8 +95,8 @@ int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono:
     ss >> vel.x >> vel.y >> vel.z;
     ss >> type;
 
-    //printf("%s\n", temp.c_str());
-    //printf("[%f %f %f] [%f %f %f %f] [%f %f %f] %d \n", pos.x, pos.y, pos.z, quat.e0, quat.e1, quat.e2, quat.e3, vel.x, vel.y, vel.z, type);
+    // printf("%s\n", temp.c_str());
+    // printf("[%f %f %f] [%f %f %f %f] [%f %f %f] %d \n", pos.x, pos.y, pos.z, quat.e0, quat.e1, quat.e2, quat.e3, vel.x, vel.y, vel.z, type);
 
     switch (type) {
         case chrono::collision::SPHERE:

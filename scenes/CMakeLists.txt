@@ -29,6 +29,7 @@ SET(CONVERTERS
     converter_rigid_test
     converter_cereal
     converter_mpm
+    converter_sink
 )
 
 
