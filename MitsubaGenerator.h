@@ -1,5 +1,12 @@
 #pragma once
 
+#if ((defined _WIN32) || (defined(__MINGW32__) || defined(__CYGWIN__))) 
+#define APIEXPORT __declspec(dllexport)
+#else
+#define APIEXPORT
+#endif
+
+
 #include <fstream>
 #include <string>
 #include <vector>
@@ -17,7 +24,7 @@ struct xml_option {
     std::string value;
 };
 
-class MitsubaGenerator {
+class APIEXPORT MitsubaGenerator {
   public:
     MitsubaGenerator();
     MitsubaGenerator(const std::string& filename);

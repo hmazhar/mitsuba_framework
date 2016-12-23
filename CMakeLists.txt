@@ -45,7 +45,7 @@ find_package(Thrust)
 #FIND_LIBRARY(PARTIO_LIBRARY NAMES ${PARTIO_NAMES} PATHS /usr/lib /usr/local/lib)
 
 find_package(Chrono
-			 COMPONENTS PARALLEL 
+			 COMPONENTS PARALLEL REQUIRED
              CONFIG 
 )
 
@@ -76,9 +76,10 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}
     ${CHRONO_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIR}
+	${ZLIB_INCLUDE_DIRS}
     ${THRUST_INCLUDE_DIR}
     )
-SET(LIBRARIES  ${CHRONO_LIBRARIES} )
+SET(LIBRARIES  ${CHRONO_LIBRARIES}  ${ZLIB_LIBRARIES} )
 # ------------------------------------------------------------------------------
 # ADD THE MitsubaGenerator LIBRARY
 # ------------------------------------------------------------------------------
@@ -89,7 +90,7 @@ ADD_LIBRARY(MitsubaGenerator SHARED
    )
 
 SET_TARGET_PROPERTIES(MitsubaGenerator PROPERTIES
-          COMPILE_FLAGS "${CH_BUILDFLAGS}"
+          COMPILE_FLAGS "${CH_BUILDFLAGS} -openmp"
         LINK_FLAGS "${CH_LINKERFLAG_EXE}")
 
  TARGET_LINK_LIBRARIES(MitsubaGenerator ${LIBXML2_LIBRARIES} ${LIBRARIES})

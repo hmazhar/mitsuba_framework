@@ -9,6 +9,8 @@
 #include <thrust/unique.h>
 #include <thrust/binary_search.h>
 #include <thrust/sort.h>
+# include <thrust/system/omp/execution_policy.h>
+
 #include <chrono_parallel/collision/ChBroadphaseUtils.h>
 using namespace chrono;
 using namespace chrono::collision;
@@ -205,38 +207,38 @@ void Weld(std::vector<uint>& meshIndices, std::vector<real3>& meshVertices, std:
     meshNormals.resize(meshVertices.size());
 
 #pragma omp parallel for
-    for (uint i = 0; i < meshVertices.size(); i++) {
+    for (int i = 0; i < meshVertices.size(); i++) {
         meshVertices[i].x = Round(meshVertices[i].x / round_to_nearest) * round_to_nearest;
         meshVertices[i].y = Round(meshVertices[i].y / round_to_nearest) * round_to_nearest;
         meshVertices[i].z = Round(meshVertices[i].z / round_to_nearest) * round_to_nearest;
     }
     std::vector<chrono::real3> vertices = meshVertices;
-    thrust::sort(vertices.begin(), vertices.end());
-    vertices.erase(thrust::unique(vertices.begin(), vertices.end()), vertices.end());
-    thrust::lower_bound(vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin());
+    thrust::sort(thrust::omp::par, vertices.begin(), vertices.end());
+    vertices.erase(thrust::unique(thrust::omp::par, vertices.begin(), vertices.end()), vertices.end());
+    thrust::lower_bound(thrust::omp::par, vertices.begin(), vertices.end(), meshVertices.begin(), meshVertices.end(), meshIndices.begin());
     meshNormals.resize(vertices.size());
 
 #pragma omp parallel for
-    for (uint i = 0; i < vertices.size(); i++) {
+    for (int i = 0; i < vertices.size(); i++) {
         meshNormals[i] = GetNormal(vertices[i]);
     }
     uint start_triangles = meshIndices.size() / 3;
     std::vector<chrono::uvec3> triangles(meshIndices.size() / 3);
 #pragma omp parallel for
-    for (uint i = 0; i < triangles.size(); i++) {
+    for (int i = 0; i < triangles.size(); i++) {
         triangles[i].x = meshIndices[i * 3 + 0];
         triangles[i].y = meshIndices[i * 3 + 1];
         triangles[i].z = meshIndices[i * 3 + 2];
         // triangles[i]=Sort(triangles[i]);
     }
 
-    thrust::sort(triangles.begin(), triangles.end());
+    thrust::sort(thrust::omp::par, triangles.begin(), triangles.end());
 
-    uint num_triangles = thrust::unique(triangles.begin(), triangles.end()) - triangles.begin();
+    uint num_triangles = thrust::unique(thrust::omp::par, triangles.begin(), triangles.end()) - triangles.begin();
     meshIndices.resize(num_triangles * 3);
 
 #pragma omp parallel for
-    for (uint i = 0; i < num_triangles; i++) {
+    for (int i = 0; i < num_triangles; i++) {
         meshIndices[i * 3 + 0] = triangles[i].x + 1;
         meshIndices[i * 3 + 1] = triangles[i].y + 1;
         meshIndices[i * 3 + 2] = triangles[i].z + 1;
@@ -299,7 +301,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     bbox res(pos_marker[0], pos_marker[0]);
     bbox_transformation unary_op;
     bbox_reduction binary_op;
-    res = thrust::transform_reduce(pos_marker.begin(), pos_marker.end(), unary_op, res, binary_op);
+    res = thrust::transform_reduce(thrust::omp::par, pos_marker.begin(), pos_marker.end(), unary_op, res, binary_op);
 
     min_bounding_point.x = std::max(abs_min.x, res.first.x);
     min_bounding_point.y = std::max(abs_min.y, res.first.y);
@@ -336,7 +338,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     std::fill(node_mass.begin(), node_mass.end(), 0);
 
 #pragma omp parallel for
-    for (uint p = 0; p < num_spheres; p++) {
+    for (int p = 0; p < num_spheres; p++) {
         const real3 xi = pos_marker[p];
         if (xi.x > abs_min.x && xi.y > abs_min.y && xi.z > abs_min.z) {
             if (xi.x < abs_max.x && xi.y < abs_max.y && xi.z < abs_max.z) {
@@ -370,12 +372,13 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     node_loc.resize(grid_size);
 
 #pragma omp parallel for
-    for (uint nod = 0; nod < grid_size; nod++) {
+    for (int nod = 0; nod < grid_size; nod++) {
         vec3 node_n = GridDecode(nod, bins_per_axis);
         node_num[nod] = node_n;
         node_loc[nod] = NodeLocation(node_n.x, node_n.y, node_n.z, bin_edge, min_bounding_point);
         node_mass[nod] = node_mass[nod] - ((mean + stdev) * .25);
     }
+	printf("Node Mass computed\n");
 
     uint NewVertexCount;
 

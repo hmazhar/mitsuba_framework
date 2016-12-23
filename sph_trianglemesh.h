@@ -1,9 +1,16 @@
 
 #pragma once
 
+#if ((defined _WIN32) || (defined(__MINGW32__) || defined(__CYGWIN__))) 
+#define APIEXPORT __declspec(dllexport)
+#else
+#define APIEXPORT
+#endif
+
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <numeric>
 #include <cstring>
 #include <zlib.h>
 #include <core/ChMath.h>
@@ -13,7 +20,7 @@
 #include "chrono_parallel/math/real3.h"        // for real3
 #include "chrono_parallel/math/matrix.h"        // for quaternion, real4
 
-void MarchingCubesToMesh(std::vector<chrono::real3>& position,
+void APIEXPORT MarchingCubesToMesh(std::vector<chrono::real3>& position,
                          chrono::real kernel_radius,
                          std::string filename,
                          chrono::real3 minp = chrono::real3(-C_LARGE_REAL, -C_LARGE_REAL, -C_LARGE_REAL),
