@@ -36,6 +36,7 @@ void ReadCompressed(std::string filename, std::string& data) {
 
     gzread(gz_file, (void*)data.data(), size);
     gzclose(gz_file);
+	printf("read file with %d bytes\n", size);
 }
 
 bool OpenBinary(std::string filename, std::ifstream& bin_file) {
@@ -95,8 +96,8 @@ int ProcessPovrayLine(std::stringstream& ifile, chrono::ChVector<>& pos, chrono:
     ss >> vel.x >> vel.y >> vel.z;
     ss >> type;
 
-    // printf("%s\n", temp.c_str());
-    // printf("[%f %f %f] [%f %f %f %f] [%f %f %f] %d \n", pos.x, pos.y, pos.z, quat.e0, quat.e1, quat.e2, quat.e3, vel.x, vel.y, vel.z, type);
+	//std::cout << temp << std::endl;
+    //printf("[%f %f %f] [%f %f %f %f] [%f %f %f] %d \n", pos.x, pos.y, pos.z, quat.e0, quat.e1, quat.e2, quat.e3, vel.x, vel.y, vel.z, type);
 
     switch (type) {
         case chrono::collision::SPHERE:

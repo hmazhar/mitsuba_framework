@@ -270,8 +270,8 @@ void MitsubaGenerator::AddSensor(chrono::ChVector<> origin,
     /////Film
     std::vector<xml_option> film_options;
     film_options.push_back(xml_option("string", "pixelFormat", "rgba"));
-    film_options.push_back(xml_option("integer", "width", std::to_string(width)));
-    film_options.push_back(xml_option("integer", "height", std::to_string(height)));
+    film_options.push_back(xml_option("integer", "width", "1920"));
+    film_options.push_back(xml_option("integer", "height", "1080"));
     film_options.push_back(xml_option("boolean", "banner", "false"));
 
     if (labels.size() > 0) {
