@@ -148,10 +148,10 @@ int main(int argc, char* argv[]) {
     real std_dev = sqrt(variance);
     printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
 
-    real kernel_radius = .016;
-    if (argc >= 6) {
-        kernel_radius = .016  * 0.9;
-    }
+    real kernel_radius = .016 * 2.0;
+   // if (argc >= 6) {
+   //     kernel_radius = .016  * 0.5;
+   // }
 
     if (color_mode > 0 || argc >= 6) {
 		printf("Adding fluid particles as spheres\n");
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
     }
     // Always output if fluid sim (because geometry file has it...)
     if (argc < 6) {
-        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-13, -3, -3), real3(13, 3, 9), 0.000001);
+        MarchingCubesToMesh(position, kernel_radius, output_mesh_ss.str(), real3(-15, -3, -3), real3(15, 3, 9), 0.000001);
         data_document.AddShape("fluid", ChVector<>(1), ChVector<>(0), QUNIT);
     }
 
@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
     if (follow_camera == 1) {
         Vector camera_pos = pos + offset;
         camera_pos.z = 4;
-        camera_pos.y -= 8;
+        camera_pos.y -= 9;
         camera_pos.x += 0;
         data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
         data_document.AddSensor(camera_pos, pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
@@ -241,7 +241,7 @@ int main(int argc, char* argv[]) {
         Vector camera_target = ChVector<>(0, 6.4, 2.84);
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     } else {
-        Vector camera_pos = ChVector<>(0, -7.4, 3);
+        Vector camera_pos = ChVector<>(0, -9, 3);
         Vector camera_target = ChVector<>(0, -6.4, 2.84);
         data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
