@@ -366,8 +366,9 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     real stdev = std::sqrt(sq_sum / node_mass.size() - mean * mean);
 
     real max_mass = *std::max_element(node_mass.begin(), node_mass.end());
+	real min_mass = *std::min_element(node_mass.begin(), node_mass.end());
 
-    printf("Max: %f %f %f %f\n", max_mass, mean, stdev, ((mean + stdev) * .25));
+    printf("Max: %f Min: %f mean: %f std_dev: %f %f\n", max_mass, min_mass, mean, stdev, ((mean + stdev) * .25));
     node_num.resize(grid_size);
     node_loc.resize(grid_size);
 
@@ -383,7 +384,7 @@ void ComputeBoundary(std::vector<real3>& pos_marker,
     uint NewVertexCount;
 
     for (uint nod = 0; nod < grid_size; nod++) {
-        // if (node_mass[nod] != -(mean + stdev * .5))
+		//if (node_mass[nod] > (min_mass + stdev))// != -(mean + stdev * .5))
         {
             chrono::vec3 node_index = node_num[nod];
             real3 node_location = node_loc[nod];
