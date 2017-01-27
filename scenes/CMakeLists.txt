@@ -9,6 +9,7 @@
 # ------------------------------------------------------------------------------
 
 SET(CONVERTERS 
+    converter_driving_tank
     converter_fording
     converter_fording_tank
     converter_fording_afar
