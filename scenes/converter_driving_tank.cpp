@@ -151,10 +151,6 @@ int main(int argc, char* argv[]) {
     printf("mean: %f, stddev: %f, max: %f\n", avg_vel, std_dev, max_vel);
 
     real kernel_radius = .016;
-   // if (argc >= 6) {
-   //     kernel_radius = .016  * 0.5;
-   // }
-
     if (color_mode > 0 || argc >= 6) {
 		printf("Adding fluid particles as spheres\n");
         for (int i = 0; i < position.size(); i++) {
@@ -237,17 +233,27 @@ int main(int argc, char* argv[]) {
 		std::cout << "CAM1 \n";
 
 
-    } else {
+    } else  if (follow_camera == 2) {
+		Vector camera_pos = Vector(0, 0, 0);
+		// camera_pos.z = 3;
+		// camera_pos.y -= 8;
+		// camera_pos.x += 6;
+
+		Vector camera_vec = pos;
+		camera_vec.Normalize();
+		data_document.AddShape("background", ChVector<>(1, 1, 1), ChVector<>(0, -125, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+		data_document.AddSensor(pos + Vector(0, -8, 3), pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
+		std::cout << "CAM1 \n";
+
+
+	}
+	else {
         Vector camera_pos = ChVector<>(0, -9, 3);
         Vector camera_target = ChVector<>(0, -6.4, 2.84);
         //data_document.AddShape("background", ChVector<>(20, 20, 5), ChVector<>(0, 2.1366, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
         data_document.AddSensor(camera_pos, camera_target, Vector(0, 0, 1), labels, "sobol", sampler_options);
     }
 
-	//ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot); data_document.AddShape("wheel_R", scale, pos, rot);
-	//ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot); data_document.AddShape("wheel_R", scale, pos, rot);
-	//ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot); data_document.AddShape("wheel_L", scale, pos, rot); 
-	//ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot); data_document.AddShape("wheel_L", scale, pos, rot);
 	SkipLine(vehicle_stream, 32);
 	SkipLine(vehicle_stream, 5);
 	ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
