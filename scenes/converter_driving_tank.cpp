@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
     ReadCompressed(input_file_vehicle.str(), data_v);
     std::replace(data_v.begin(), data_v.end(), ',', ' ');
 	std::replace(data_v.begin(), data_v.end(), char(0), ' ');
-	std::cout << data_v << std::endl;
+	//std::cout << data_v << std::endl;
 
     std::stringstream output_file_ss;
     std::stringstream output_mesh_ss;
@@ -178,41 +178,48 @@ int main(int argc, char* argv[]) {
     }
 	//platform
 	ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-	//data_document.AddShape("box", scale, pos, rot);
+	//
 
-	//for (int trough = 0; trough < 14; trough++) {
+	
 
-	//	int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
-	//	if (trough ==3 || trough == 4 || trough ==5 || trough == 8 || trough == 11) {
-	//		continue;
-	//	}
+	if (follow_camera == 3) {
+		data_document.AddShape("box", scale, pos, rot);
 
-	//	if (vehicle_stream.fail() == false) {
-	//		switch (type) {
-	//		case chrono::collision::SPHERE:
-	//			printf("sphere %d %d %d %d \n", trough, scale.x, scale.y, scale.z);
-	//			data_document.AddShape("sphere", scale, pos, rot);
-	//			break;
-	//		case chrono::collision::ELLIPSOID:
-	//			data_document.AddShape("ellipsoid", scale, pos, rot);
-	//			break;
-	//		case chrono::collision::BOX:
-	//			data_document.AddShape("box", scale, pos, rot);
-	//			break;
-	//		case chrono::collision::CYLINDER:
-	//			/*if (scale.x == .223) {
-	//				scale.y = .125;
-	//			}
-	//			data_document.AddShape("cylinder", scale, pos, rot);*/
-	//			break;
-	//		case chrono::collision::CONE:
-	//			data_document.AddShape("cone", scale, pos, rot);
-	//			break;
-	//		case (-1) :
-	//			break;
-	//		}
-	//	}
-	//}
+		ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+		data_document.AddShape("box", scale, pos, rot);
+
+		ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+		ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+		ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+
+		for (int trough = 0; trough < 5; trough++) {
+
+			int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+			if (vehicle_stream.fail() == false) {
+				switch (type) {
+				case chrono::collision::SPHERE:
+					//printf("sphere %d %d %d %d \n", trough, scale.x, scale.y, scale.z);
+					data_document.AddShape("sphere", scale, pos, rot);
+					break;
+				case chrono::collision::ELLIPSOID:
+					data_document.AddShape("ellipsoid", scale, pos, rot);
+					break;
+				case chrono::collision::BOX:
+					data_document.AddShape("box", scale, pos, rot);
+					break;
+				case chrono::collision::CYLINDER:
+					data_document.AddShape("cylinder", scale, pos, rot);
+					break;
+				case chrono::collision::CONE:
+					data_document.AddShape("cone", scale, pos, rot);
+					break;
+				case (-1) :
+					break;
+				}
+			}
+		}
+
+	}
 
     ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
 
@@ -222,9 +229,6 @@ int main(int argc, char* argv[]) {
     std::vector<xml_option> sampler_options = {xml_option("integer", "sampleCount", "256"), xml_option("integer", "scramble", argv[1])};
     if (follow_camera == 1) {
         Vector camera_pos = Vector(0,0,0);
-       // camera_pos.z = 3;
-       // camera_pos.y -= 8;
-       // camera_pos.x += 6;
 
 		Vector camera_vec = pos;
 		camera_vec.Normalize();
@@ -235,13 +239,21 @@ int main(int argc, char* argv[]) {
 
     } else  if (follow_camera == 2) {
 		Vector camera_pos = Vector(0, 0, 0);
-		// camera_pos.z = 3;
-		// camera_pos.y -= 8;
-		// camera_pos.x += 6;
 
 		Vector camera_vec = pos;
 		camera_vec.Normalize();
 		data_document.AddShape("background", ChVector<>(1, 1, 1), ChVector<>(0, -125, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
+		data_document.AddSensor(pos + Vector(0, -8, 3), pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
+		std::cout << "CAM1 \n";
+
+
+	}
+	else  if (follow_camera == 3) {
+		Vector camera_pos = Vector(0, 0, 0);
+
+		Vector camera_vec = pos;
+		camera_vec.Normalize();
+		//data_document.AddShape("background", ChVector<>(1, 1, 1), ChVector<>(0, 0, 0), Q_from_AngAxis(90 * CH_C_DEG_TO_RAD, VECT_X));
 		data_document.AddSensor(pos + Vector(0, -8, 3), pos + offset, Vector(0, 0, 1), labels, "sobol", sampler_options);
 		std::cout << "CAM1 \n";
 
@@ -268,48 +280,31 @@ int main(int argc, char* argv[]) {
 	ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
 	data_document.AddShape("wheel_R", Vector(1, -1, 1), pos, rot);
 	
-	//
-	//int cyl_c = 0;
- //       while (vehicle_stream.fail() == false) {
- //           int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
- //           if (vehicle_stream.fail() == false) {
- //               switch (type) {
- //                   case chrono::collision::SPHERE:
- //                       data_document.AddShape("sphere", scale, pos, rot);
- //                       break;
- //                   case chrono::collision::ELLIPSOID:
- //                       data_document.AddShape("ellipsoid", scale, pos, rot);
- //                       break;
- //                   case chrono::collision::BOX:
- //                      // data_document.AddShape("box", scale, pos, rot);
- //                       break;
- //                   case chrono::collision::CYLINDER:
-	//					std::cout << "cylinder\n";
-	//					if (scale.y==0.254) {
-	//						if (cyl_c == 2 || cyl_c == 3)
-	//						{
-	//							data_document.AddShape("wheel_R", scale, pos, rot);
-	//						}
-	//						else if (cyl_c == 4 || cyl_c == 5)
-	//						{
-	//							data_document.AddShape("wheel_L", scale, pos, rot);
-	//						}
-	//						cyl_c++;
-	//					}
-	//					
-	//					else {
-	//						//data_document.AddShape("cylinder", scale, pos, rot);
-	//					}
-	//						
- //                       break;
- //                   case chrono::collision::CONE:
- //                       data_document.AddShape("cone", scale, pos, rot);
- //                       break;
- //                   case (-1):
- //                       break;
- //               }
- //           }
- //       }
+
+        while (vehicle_stream.fail() == false) {
+            int type = ProcessPovrayLine(vehicle_stream, pos, vel, scale, rot);
+            if (vehicle_stream.fail() == false) {
+                switch (type) {
+                    case chrono::collision::SPHERE:
+                        data_document.AddShape("sphere", scale, pos, rot);
+                        break;
+       //             case chrono::collision::ELLIPSOID:
+       //                 data_document.AddShape("ellipsoid", scale, pos, rot);
+       //                 break;
+       //             case chrono::collision::BOX:
+       //                 break;
+       //             case chrono::collision::CYLINDER:
+							////data_document.AddShape("cylinder", scale, pos, rot);
+						
+       //                 break;
+       //             case chrono::collision::CONE:
+       //                 data_document.AddShape("cone", scale, pos, rot);
+       //                 break;
+                    case (-1):
+                        break;
+                }
+            }
+        }
     data_document.Write();
     return 0;
 }
